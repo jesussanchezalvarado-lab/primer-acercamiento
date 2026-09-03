@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El primer acercamiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:0;background:#ffffff;font-family:'Open Sans',sans-serif;color:#1a232b;line-height:1.6;overflow-x:hidden}
+  a{color:#0055B7}
+  a:hover{color:#003d85}
+  h1,h2,h3,h4{font-family:'Roboto Condensed',sans-serif;margin:0;line-height:1.15}
+  img{display:block;max-width:100%;height:auto}
+  button{font-family:inherit}
+  textarea,input[type=text],select{font-family:'Open Sans',sans-serif}
+  .skip-link{position:absolute;left:-999px;top:0;background:#0055B7;color:#fff;padding:10px 18px;z-index:200;border-radius:0 0 6px 0}
+  .skip-link:focus{left:0}
+  html{scroll-behavior:smooth}
+  section[id]{scroll-margin-top:140px}
+  main > .modePanel > section{padding:64px clamp(20px,6vw,56px)}
+  main > .modePanel > section > div{width:min(100%,1080px);margin:0 auto}
+  ::selection{background:#8FC6E8}
+  .eyebrow{display:inline-block;font:700 12px 'Open Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;border-radius:20px;margin-bottom:18px}
+  .card{background:#fff;border:1px solid #e2e6ea;border-radius:10px;padding:20px 22px}
+  .cardsGrid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:640px){.cardsGrid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:980px){.cardsGrid{grid-template-columns:repeat(4,1fr)}}
+  .step-card{border-radius:12px;padding:22px 24px;color:#fff;transition:transform .18s ease,box-shadow .18s ease;will-change:transform}
+  .step-card:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 12px 22px rgba(0,0,0,.16)}
+  .toggle-btn{cursor:pointer;border:1.5px solid #0055B7;background:#fff;color:#0055B7;font:700 13px 'Open Sans',sans-serif;padding:10px 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease,background .15s ease}
+  .toggle-btn:hover{background:#e9f2fb;transform:translateY(-1px)}
+  .primary-btn{cursor:pointer;border:none;background:#0055B7;color:#fff;font:700 13px 'Open Sans',sans-serif;padding:12px 20px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease,background .15s ease}
+  .primary-btn:hover{background:#003d85;transform:translateY(-1px)}
+  .ghost-btn{cursor:pointer;border:1.5px dashed #b7c2cc;background:transparent;color:#55606b;font:700 13px 'Open Sans',sans-serif;padding:11px 18px;border-radius:8px;transition:transform .15s ease,border-color .15s ease,color .15s ease}
+  .ghost-btn:hover{border-color:#0055B7;color:#0055B7;transform:translateY(-1px)}
+  .conn-group{background:#f4f6f8;border-radius:10px;padding:18px 20px;transition:transform .18s ease,box-shadow .18s ease}
+  .conn-group:hover{transform:translateY(-3px);box-shadow:0 10px 20px rgba(0,0,0,.08)}
+  .check-item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #eef1f3}
+  .check-item:last-child{border-bottom:none}
+  .check-item input{width:19px;height:19px;flex:none;margin-top:2px;accent-color:#0055B7}
+  .before-after{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:800px){.before-after{grid-template-columns:1fr 1fr}}
+  .ba-box{border-radius:10px;padding:18px 20px}
+  .hoverLift{transition:transform .18s ease,box-shadow .18s ease}
+  .hoverLift:hover{transform:translateY(-3px) scale(1.015);box-shadow:0 10px 20px rgba(0,0,0,.10)}
+  .tpl-field{margin-bottom:14px}
+  .tpl-field label{display:block;font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+  .tpl-field textarea{width:100%;min-height:70px;border-radius:8px;border:1.5px solid #d7dee5;padding:12px 14px;font-size:14px;line-height:1.55;color:#1a232b;resize:vertical}
+  .tpl-field textarea:focus{outline:none;border-color:#0055B7}
+  .tpl-field input[type=text]{width:100%;border-radius:8px;border:1.5px solid #d7dee5;padding:10px 14px;font-size:15px;font-weight:700;color:#0d1b2a}
+  .tpl-field input[type=text]:focus{outline:none;border-color:#0055B7}
+  .tpl-field select{width:100%;border-radius:8px;border:1.5px solid #d7dee5;padding:10px 14px;font-size:15px;font-weight:700;color:#0d1b2a;background:#fff}
+  .tpl-field select:focus{outline:none;border-color:#0055B7}
+  .field-hint{font-size:12.5px;color:#7b8792;margin-top:5px}
+  #backToTop{position:fixed;bottom:24px;right:24px;width:48px;height:48px;border-radius:50%;background:#0055B7;color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;z-index:150}
+  #backToTop.show{opacity:1;pointer-events:auto}
+  #backToTop:hover{background:#003d85;transform:translateY(-2px)}
+  .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  .autosave-note{font-size:12.5px;color:#7b8792;display:flex;align-items:center;gap:6px}
+  .docTypeRow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+  .docTypeBtn{cursor:pointer;border:1.5px solid #d7dee5;background:#fff;color:#55606b;font:700 13px 'Open Sans',sans-serif;padding:12px 16px;border-radius:9px;text-align:left;flex:1;min-width:200px;transition:transform .15s ease,box-shadow .15s ease}
+  .docTypeBtn:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.08)}
+  .docTypeBtn small{display:block;font:600 11.5px 'Open Sans',sans-serif;color:#7b8792;margin-top:3px}
+  .docTypeBtn.active{border-color:#0055B7;background:#e9f2fb;color:#0055B7}
+  .docTypeBtn.active small{color:#0055B7}
+  .preview-box{background:#fdfbf3;border:1.5px solid #ecd9a3;border-radius:10px;padding:24px 26px;font-family:Georgia,'Times New Roman',serif;font-size:14.5px;line-height:1.75;color:#1a232b;white-space:pre-wrap}
+  .preview-box .missing{background:#fff1c2;color:#8a6d1f;padding:0 4px;border-radius:3px;font-family:'Open Sans',sans-serif;font-weight:600;font-size:13px}
+  .preview-align-right{text-align:right}
+  .preview-align-center{text-align:center}
+  .preview-justify p:not(.preview-align-right):not(.preview-align-center){text-align:justify}
+  .dark-card{background:#003d85;border:none;color:#fff;border-radius:10px;padding:20px 22px}
+
+  /* ---- diagnóstico: encontrar el error en el documento completo ---- */
+  .huntSeg{cursor:pointer;padding:1px 3px;border-radius:4px;transition:background .15s}
+  .huntSeg:hover{background:#fdf3d6}
+  .huntSeg:focus-visible{outline:2px solid #0055B7;outline-offset:2px}
+  .huntSeg.found{background:#fdeeee;border-bottom:2px solid #b0392b;cursor:default}
+  .huntSeg.miss{animation:missFlash .5s}
+  @keyframes missFlash{0%{background:#e2e6ea}100%{background:transparent}}
+  .hunt-doc{font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:2}
+  .hunt-feedback{margin-top:12px;padding:12px 14px;border-radius:8px;background:#eafbe6;border-left:4px solid #2f8b21}
+  .hunt-feedback p{font-size:13.5px;line-height:1.5;color:#3a4551;margin:0}
+  .hunt-feedback strong{color:#2f8b21}
+
+  /* ---- estructura: ordenar los fragmentos ---- */
+  .orderCard{cursor:pointer;text-align:left;border:1.5px solid #d7dee5;border-left-width:4px;background:#fff;border-radius:8px;padding:12px 14px;width:100%;transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
+  .orderCard:hover{background:#f4f6f8;transform:translateY(-2px) scale(1.015);box-shadow:0 8px 16px rgba(0,0,0,.08)}
+  .orderCard:disabled{opacity:.35;cursor:default}
+  .orderCard:disabled:hover{transform:none;box-shadow:none}
+  .orderSlot{border:1.5px dashed #c9d3db;border-radius:8px;padding:10px 12px;min-height:58px;transition:transform .15s ease}
+  .orderSlot.filled{border-style:solid}
+
+  /* ---- mode tabs (Correo / Cartas) ---- */
+  .modeTabs{display:flex;gap:14px;padding:24px clamp(20px,6vw,56px) 0;flex-wrap:wrap}
+  .modeTabBtn{flex:1;min-width:250px;text-align:left;cursor:pointer;border:2px solid #e2e6ea;background:#fff;border-radius:14px;padding:18px 20px;transition:transform .15s ease,box-shadow .15s ease}
+  .modeTabBtn:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.07)}
+  .modeTabBtn .mt-title{display:block;font-family:'Roboto Condensed',sans-serif;font-size:19px;font-weight:700;color:#55606b}
+  .modeTabBtn .mt-desc{display:block;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:400;color:#7b8792;margin-top:4px;line-height:1.4}
+  .modeTabBtn[data-mode="correo"].active{border-color:#0055B7;background:#e9f2fb}
+  .modeTabBtn[data-mode="correo"].active .mt-title,.modeTabBtn[data-mode="correo"].active .mt-desc{color:#0055B7}
+  .modeTabBtn[data-mode="cartas"].active{border-color:#3FAE29;background:#eafbe6}
+  .modeTabBtn[data-mode="cartas"].active .mt-title,.modeTabBtn[data-mode="cartas"].active .mt-desc{color:#2f8b21}
+  .modePanel{display:none}
+  .modePanel.active{display:block}
+</style>
+</head>
+<body>
+
+<a href="#contenido-principal" class="skip-link">Saltar al contenido principal</a>
+
+<div style="display:flex;flex-direction:column;min-height:100vh">
+
+<header style="background:#0055B7;color:#fff;padding:42px clamp(20px,6vw,56px) 30px;display:flex;align-items:center;gap:32px;flex-wrap:wrap">
+  <img src="logoula.png" alt="Universidad de Los Lagos" style="height:72px;width:auto;flex:none">
+  <div style="flex:1;min-width:260px">
+    <p style="margin:0 0 6px;font:600 12px/1.4 'Open Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#8FC6E8">Seminario de Grado · SEM2-2026</p>
+    <h1 style="font-size:clamp(32px,5vw,52px);line-height:1.05;font-weight:700">El primer acercamiento</h1>
+    <p style="margin:10px 0 0;font-size:16px;line-height:1.5;max-width:900px;color:#e9f2fb">Línea Licenciatura en Educación · Departamento de Educación · Carreras Pedagógicas</p>
+  </div>
+</header>
+
+<div class="modeTabs" id="modeTabs"></div>
+
+<nav aria-label="Secciones" style="position:sticky;top:0;z-index:100;background:#ffffff;border-bottom:1px solid #e2e6ea;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-top:20px">
+  <div style="display:flex;gap:4px;overflow-x:auto;padding:0 clamp(20px,6vw,56px);scrollbar-width:thin" id="navRow"></div>
+</nav>
+
+<main id="contenido-principal" style="flex:1">
+
+<!-- ======================= PANEL: CORREO ======================= -->
+<div class="modePanel active" id="panel-correo">
+
+<section id="correo-activacion" style="background:#fff8e6">
+  <div style="max-width:820px;margin:0 auto">
+    <p class="eyebrow" style="background:#fff1c2;color:#8a6d1f">Fase 1 · Activa lo que sabes</p>
+    <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:8px;color:#0d1b2a">Encuentra los errores en este correo</h2>
+    <p style="font-size:15px;color:#55606b;margin-bottom:28px;max-width:760px">Este es un correo con errores reales (adaptado) de semestres anteriores. Léelo completo y haz clic en las partes que tengan un problema: de redacción, de tono, o algo que falta. Busca los 3 errores.</p>
+    <div class="card" style="padding:26px 28px" id="correoHuntWrap"></div>
+    <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <p id="correoHuntCount" style="font:700 13px 'Open Sans',sans-serif;color:#55606b;margin:0">0 de 3 errores encontrados</p>
+      <button class="ghost-btn" id="correoHuntReveal">Mostrar los errores restantes</button>
+    </div>
+    <div id="correoHuntAnnounce" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+  </div>
+</section>
+
+<section id="correo-modelo" style="max-width:920px;margin:0 auto">
+  <p class="eyebrow" style="background:#e9f2fb;color:#0055B7">Fase 2 · Modelo — el concepto</p>
+  <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:18px;color:#0d1b2a">Dos formas de empezar, según si ya se conocen</h2>
+  <p style="font-size:17px;line-height:1.7;color:#3a4551">El correo de primer acercamiento es breve: se presentan, dicen de qué trata su investigación y piden una reunión o autorización, mencionando que adjuntan la carta formal. Cómo empieza depende de si ya tuvieron contacto con la persona.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:28px">
+    <div class="card hoverLift" style="border-left:4px solid #0055B7">
+      <p style="font:700 15px 'Roboto Condensed',sans-serif;margin-bottom:6px;color:#0055B7">Primera vez que lo contactan</p>
+      <p style="font-size:14.5px;line-height:1.6;color:#55606b;margin:0">Preséntense completos: quiénes son, qué estudian, en qué universidad y para qué le escriben.</p>
+    </div>
+    <div class="card hoverLift" style="border-left:4px solid #3FAE29">
+      <p style="font:700 15px 'Roboto Condensed',sans-serif;margin-bottom:6px;color:#3FAE29">Ya conversaron en persona antes</p>
+      <p style="font-size:14.5px;line-height:1.6;color:#55606b;margin:0">Si ya se acercaron en el pasillo, en una visita o en una reunión, pueden mencionar esa conversación y usar el correo para formalizarla por escrito.</p>
+    </div>
+  </div>
+</section>
+
+<section id="correo-ejemplos" style="background:#f9fafb">
+  <div style="max-width:980px;margin:0 auto">
+    <p class="eyebrow" style="background:#fdeeee;color:#b0392b">Fase 2 · Modelo — ejemplos resueltos</p>
+    <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:10px;color:#0d1b2a">Ejemplos</h2>
+    <p style="font-size:15px;color:#55606b;margin-bottom:28px;max-width:760px">Estos ejemplos te pueden orientar.</p>
+
+    <div class="card hoverLift" style="margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <p style="font:700 12px 'Open Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8a6d1f;margin-bottom:4px">Ejemplo A</p>
+          <p style="font:700 17px 'Roboto Condensed',sans-serif;margin:0;color:#0d1b2a">Decir de qué trata la investigación, antes y después</p>
+        </div>
+        <button class="toggle-btn" data-toggle="correoExA">Ver ejemplo ▾</button>
+      </div>
+      <p style="font-size:13.5px;color:#7b8792;margin:10px 0 0">El error más común: pedir autorización sin explicar de qué se trata.</p>
+      <div id="correoExA" style="display:none;margin-top:18px">
+        <div class="before-after">
+          <div class="ba-box hoverLift" style="background:#fdeeee;border:1px solid #f3c9c2">
+            <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.05em;color:#b0392b;margin-bottom:8px">Antes · no dice de qué trata</p>
+            <p style="font-size:14.5px;line-height:1.6;color:#3a4551;margin:0">"...quisiéramos solicitar su autorización para realizar nuestra investigación. Quedamos atentos/as a su respuesta."</p>
+          </div>
+          <div class="ba-box hoverLift" style="background:#eafbe6;border:1px solid #bfe8b0">
+            <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.05em;color:#2f8b21;margin-bottom:8px">Después · tema claro y adjunto mencionado</p>
+            <p style="font-size:14.5px;line-height:1.6;color:#3a4551;margin:0">"...quisiéramos solicitar su autorización para realizar una investigación sobre el uso de TIC en el aula. Adjuntamos una carta con el detalle completo. Quedamos atentos/as a su respuesta."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hoverLift">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <p style="font:700 12px 'Open Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8a6d1f;margin-bottom:4px">Ejemplo B</p>
+          <p style="font:700 17px 'Roboto Condensed',sans-serif;margin:0;color:#0d1b2a">Correo completo, ejemplo ficticio con las 4 partes marcadas</p>
+        </div>
+        <button class="toggle-btn" data-toggle="correoExB">Ver ejemplo ▾</button>
+      </div>
+      <p style="font-size:13.5px;color:#7b8792;margin:10px 0 0">Caso inventado: primer contacto con un liceo de Osorno.</p>
+      <div id="correoExB" style="display:none;margin-top:18px;flex-direction:column;gap:12px"></div>
+    </div>
+  </div>
+</section>
+
+<section id="correo-estructura" style="background:#f9fafb">
+  <div style="max-width:980px;margin:0 auto">
+    <p class="eyebrow" style="background:#eafbe6;color:#2f8b21">Fase 3 · Practican guiados — estructura</p>
+    <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:10px;color:#0d1b2a">Las 4 partes de tu correo</h2>
+    <p style="font-size:15px;color:#55606b;margin-bottom:28px;max-width:760px">Las volverás a ver como guía dentro del generador de la Fase 4.</p>
+    <div class="cardsGrid" id="correoPasosWrap"></div>
+
+    <h3 style="font-size:20px;margin:36px 0 6px;color:#0d1b2a">Ponlo a prueba: ordena este correo</h3>
+    <p style="font-size:14.5px;color:#55606b;margin-bottom:20px">Estos 4 fragmentos de un correo real están desordenados. Haz clic en cada uno, en el orden que creas correcto.</p>
+    <div class="card" style="padding:22px 24px" id="correoOrderWrap"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button class="ghost-btn" id="correoOrderReset">↺ Reiniciar</button>
+    </div>
+    <div id="correoOrderFeedback"></div>
+  </div>
+</section>
+
+<section id="correo-frases" style="max-width:980px;margin:0 auto">
+  <p class="eyebrow" style="background:#f3e8fb;color:#7a1f96">Fase 3 · Practican guiados — banco de frases</p>
+  <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:10px;color:#0d1b2a">Frases para cada parte del correo</h2>
+  <p style="font-size:15px;color:#55606b;margin-bottom:28px;max-width:760px">En la Fase 4 podrás insertar estas frases con un clic y luego completarlas.</p>
+  <div class="cardsGrid" id="correoFrasesWrap"></div>
+</section>
+
+<section id="correo-generador" style="background:#eef5fc">
+  <div style="max-width:980px;margin:0 auto">
+    <p class="eyebrow" style="background:#dbeaf9;color:#0055B7">Fase 4 · Tu turno — arma y descarga tu correo</p>
+    <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:10px;color:#0d1b2a">Completa los campos</h2>
+    <p style="font-size:15px;color:#55606b;margin-bottom:10px;max-width:760px">Lo que falte por completar se ve resaltado en amarillo en la vista previa.</p>
+    <p class="autosave-note" id="correoAutosaveStatus" style="margin-bottom:28px">💾 Tu progreso se guarda automáticamente en este navegador. Se recomienda descargar tu trabajo periódicamente.</p>
+
+    <div class="card" style="margin-bottom:20px" id="correoCampos"></div>
+
+    <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792;margin-bottom:10px">Vista previa</p>
+    <div class="preview-box" id="correoPreviewBox" style="margin-bottom:20px"></div>
+
+    <div class="dark-card">
+      <p style="font:700 13px 'Open Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8FC6E8;margin-bottom:12px">Descargar mi correo</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="primary-btn" id="correoCopyBtn">📋 Copiar texto</button>
+        <button class="primary-btn" id="correoDownloadWordBtn">⬇ Descargar en Word (.docx)</button>
+      </div>
+      <div id="correoCopyAnnounce" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+    </div>
+  </div>x
+</section>
+
+<section id="correo-errores" style="max-width:980px;margin:0 auto">
+  <p class="eyebrow" style="background:#fff1c2;color:#8a6d1f">Fase 5 · Lo que debes evitar</p>
+  <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:18px;color:#0d1b2a">Seis errores comunes</h2>
+  <div class="card" style="padding:8px 22px" id="correoErroresWrap"></div>
+</section>
+
+<section id="correo-autoeval" style="background:#003d85;color:#fff">
+  <div style="max-width:820px;margin:0 auto">
+    <p class="eyebrow" style="background:rgba(255,255,255,.14);color:#8FC6E8">Fase 5 · Revisa — checklist final</p>
+    <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:8px;color:#fff">Lista de verificación final</h2>
+    <p style="font-size:15px;color:#c3ccd6;margin-bottom:28px;max-width:700px">Revisa tu correo completo contra esta lista antes de enviarlo.</p>
+    <div style="background:#0055B7;border-radius:12px;padding:8px 22px" id="correoAutoevalWrap"></div>
+    <p style="font-size:13px;color:#a9d8cd;margin-top:16px" id="correoAutoevalCount"></p>
+    <div id="correoAutoevalAnnounce" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+  </div>
+</section>
+
+</div>
+
+<!-- ======================= PANEL: CARTAS ======================= -->
+<div class="modePanel" id="panel-cartas">
+
+<section id="cartas-activacion" style="background:#fff8e6">
+  <div style="max-width:820px;margin:0 auto">
+    <p class="eyebrow" style="background:#fff1c2;color:#8a6d1f">Fase 1 · Activa lo que sabes</p>
+    <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:8px;color:#0d1b2a">Encuentra los errores en esta carta</h2>
+    <p style="font-size:15px;color:#55606b;margin-bottom:28px;max-width:760px">Esta es una carta real (adaptada) de un semestre anterior. Léela completa y haz clic en las partes que tengan un problema. Busca los 3 errores.</p>
+    <div class="card" style="padding:26px 28px" id="cartasHuntWrap"></div>
+    <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <p id="cartasHuntCount" style="font:700 13px 'Open Sans',sans-serif;color:#55606b;margin:0">0 de 3 errores encontrados</p>
+      <button class="ghost-btn" id="cartasHuntReveal">Mostrar los errores restantes</button>
+    </div>
+    <div id="cartasHuntAnnounce" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+  </div>
+</section>
+
+<section id="cartas-modelo" style="max-width:920px;margin:0 auto">
+  <p class="eyebrow" style="background:#e9f2fb;color:#0055B7">Fase 2 · Modelo — el concepto</p>
+  <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:18px;color:#0d1b2a">El documento oficial de tu investigación</h2>
+  <p style="font-size:17px;line-height:1.7;color:#3a4551">A diferencia del correo, la carta formal lleva todo el detalle: el objetivo general de la investigación, a quién se aplicarán entrevistas o encuestas, y los datos de contacto de la académica que guía el trabajo. Es el documento que queda como respaldo oficial de la autorización.</p>
+</section>
+
+<section id="cartas-ejemplos" style="background:#f9fafb">
+  <div style="max-width:980px;margin:0 auto">
+    <p class="eyebrow" style="background:#fdeeee;color:#b0392b">Fase 2 · Modelo — ejemplos resueltos</p>
+    <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:10px;color:#0d1b2a">Apoyo opcional: mira cómo se hace</h2>
+    <p style="font-size:15px;color:#55606b;margin-bottom:28px;max-width:760px">Estos ejemplos son opcionales. Puedes seguir avanzando sin abrirlos, o consultarlos solo cuando te atasques. Úsalos como referencia, no como plantilla para copiar tal cual.</p>
+
+    <div class="card hoverLift" style="margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <p style="font:700 12px 'Open Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8a6d1f;margin-bottom:4px">Ejemplo A</p>
+          <p style="font:700 17px 'Roboto Condensed',sans-serif;margin:0;color:#0d1b2a">El encabezado, antes y después</p>
+        </div>
+        <button class="toggle-btn" data-toggle="cartasExA">Ver ejemplo ▾</button>
+      </div>
+      <p style="font-size:13.5px;color:#7b8792;margin:10px 0 0">El error más común de la carta está en las dos primeras líneas.</p>
+      <div id="cartasExA" style="display:none;margin-top:18px">
+        <div class="before-after">
+          <div class="ba-box hoverLift" style="background:#fdeeee;border:1px solid #f3c9c2">
+            <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.05em;color:#b0392b;margin-bottom:8px">Antes · quedaron ambas opciones</p>
+            <p style="font-size:14.5px;line-height:1.6;color:#3a4551;margin:0">"Estimado/a Director/a<br>Sr/a. XXXXX (CON AMBOS APELLIDOS)"</p>
+          </div>
+          <div class="ba-box hoverLift" style="background:#eafbe6;border:1px solid #bfe8b0">
+            <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.05em;color:#2f8b21;margin-bottom:8px">Después · una sola opción, nombre completo</p>
+            <p style="font-size:14.5px;line-height:1.6;color:#3a4551;margin:0">"Estimada Directora<br>Sra. Juana Pérez Soto"</p>
+          </div>
+        </div>
+        <p style="font-size:13px;color:#7b8792;margin-top:14px">Nota: no se trata de "elegir la más fácil", sino de averiguar antes de escribir si la persona es director o directora, y borrar la opción que no corresponde.</p>
+      </div>
+    </div>
+
+    <div class="card hoverLift">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <p style="font:700 12px 'Open Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8a6d1f;margin-bottom:4px">Ejemplo B</p>
+          <p style="font:700 17px 'Roboto Condensed',sans-serif;margin:0;color:#0d1b2a">Carta completa, ejemplo ficticio con las 4 partes marcadas</p>
+        </div>
+        <button class="toggle-btn" data-toggle="cartasExB">Ver ejemplo ▾</button>
+      </div>
+      <p style="font-size:13.5px;color:#7b8792;margin:10px 0 0">Caso inventado: investigación sobre uso de TIC en un liceo de Osorno.</p>
+      <div id="cartasExB" style="display:none;margin-top:18px;flex-direction:column;gap:12px"></div>
+    </div>
+  </div>
+</section>
+
+<section id="cartas-estructura" style="background:#f9fafb">
+  <div style="max-width:980px;margin:0 auto">
+    <p class="eyebrow" style="background:#eafbe6;color:#2f8b21">Fase 3 · Practican guiados — estructura</p>
+    <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:10px;color:#0d1b2a">Las 4 partes de tu carta</h2>
+    <p style="font-size:15px;color:#55606b;margin-bottom:28px;max-width:760px">No inventes un orden distinto ni te saltes una parte. Las volverás a ver como guía dentro del generador de la Fase 4.</p>
+    <div class="cardsGrid" id="cartasPasosWrap"></div>
+
+    <h3 style="font-size:20px;margin:36px 0 6px;color:#0d1b2a">Ponlo a prueba: ordena esta carta</h3>
+    <p style="font-size:14.5px;color:#55606b;margin-bottom:20px">Estos 4 fragmentos de una carta real están desordenados. Haz clic en cada uno, en el orden que creas correcto.</p>
+    <div class="card" style="padding:22px 24px" id="cartasOrderWrap"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button class="ghost-btn" id="cartasOrderReset">↺ Reiniciar</button>
+    </div>
+    <div id="cartasOrderFeedback"></div>
+  </div>
+</section>
+
+<section id="cartas-frases" style="max-width:980px;margin:0 auto">
+  <p class="eyebrow" style="background:#f3e8fb;color:#7a1f96">Fase 3 · Practican guiados — banco de frases</p>
+  <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:10px;color:#0d1b2a">Frases para cada parte de la carta</h2>
+  <p style="font-size:15px;color:#55606b;margin-bottom:28px;max-width:760px">En la Fase 4 podrás insertar estas frases con un clic dentro de tu objetivo, y luego completarlas.</p>
+  <div class="cardsGrid" id="cartasFrasesWrap"></div>
+</section>
+
+<section id="cartas-generador" style="background:#eef5fc">
+  <div style="max-width:980px;margin:0 auto">
+    <p class="eyebrow" style="background:#dbeaf9;color:#0055B7">Fase 4 · Tu turno — arma y descarga tu carta</p>
+    <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:10px;color:#0d1b2a">Completa los campos</h2>
+    <p style="font-size:15px;color:#55606b;margin-bottom:10px;max-width:760px">Elige qué carta necesitas y completa cada campo. Lo que falte por completar se ve resaltado en amarillo en la vista previa.</p>
+    <p class="autosave-note" id="cartasAutosaveStatus" style="margin-bottom:28px">💾 Tu progreso se guarda automáticamente en este navegador. Se recomienda descargar tu trabajo periódicamente.</p>
+
+    <div class="docTypeRow" id="cartasDocTypeRow"></div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div id="cartasCamposComunes"></div>
+      <div id="cartasCamposExtra"></div>
+    </div>
+
+    <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792;margin-bottom:10px">Vista previa</p>
+    <div class="preview-box preview-justify" id="cartasPreviewBox" style="margin-bottom:20px"></div>
+
+    <div class="dark-card">
+      <p style="font:700 13px 'Open Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8FC6E8;margin-bottom:12px">Descargar mi carta</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="primary-btn" id="cartasCopyBtn">📋 Copiar texto</button>
+        <button class="primary-btn" id="cartasDownloadWordBtn">⬇ Descargar en Word (.docx)</button>
+      </div>
+      <div id="cartasCopyAnnounce" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+    </div>
+  </div>
+</section>
+
+<section id="cartas-errores" style="max-width:980px;margin:0 auto">
+  <p class="eyebrow" style="background:#fff1c2;color:#8a6d1f">Fase 5 · Lo que debes evitar</p>
+  <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:18px;color:#0d1b2a">Seis errores comunes</h2>
+  <div class="card" style="padding:8px 22px" id="cartasErroresWrap"></div>
+</section>
+
+<section id="cartas-autoeval" style="background:#003d85;color:#fff">
+  <div style="max-width:820px;margin:0 auto">
+    <p class="eyebrow" style="background:rgba(255,255,255,.14);color:#8FC6E8">Fase 5 · Revisa — checklist final</p>
+    <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:8px;color:#fff">Lista de verificación final</h2>
+    <p style="font-size:15px;color:#c3ccd6;margin-bottom:28px;max-width:700px">Revisa tu carta completa contra esta lista antes de enviarla.</p>
+    <div style="background:#0055B7;border-radius:12px;padding:8px 22px" id="cartasAutoevalWrap"></div>
+    <p style="font-size:13px;color:#a9d8cd;margin-top:16px" id="cartasAutoevalCount"></p>
+    <div id="cartasAutoevalAnnounce" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+  </div>
+</section>
+
+</div>
+
+</main>
+
+<footer style="padding:28px clamp(20px,6vw,56px);background:#f4f6f8;border-top:1px solid #e2e6ea">
+  <p style="font-size:13px;color:#7b8792;margin:0;max-width:1080px;margin:0 auto">Material de apoyo · Departamento de Educación, ULagos. Organizado como liberación gradual de responsabilidad (Pearson &amp; Gallagher, 1983): activación → modelo → práctica guiada → práctica independiente → autorregulación.</p>
+</footer>
+
+</div>
+
+<button id="backToTop" aria-label="Volver arriba" title="Volver arriba">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+
+<script>
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch(e) {}
+  document.body.removeChild(ta);
+}
+function highlightMissing(text){
+  return esc(text).replace(/\[[^\]]+\]/g, m => `<span class="missing">${m}</span>`).replace(/\n/g,'<br>');
+}
+
+// ================= MODE TABS + NAV =================
+const modes = {
+  correo: {
+    label: 'Correo de primer acercamiento',
+    desc: 'El mensaje breve para presentarse y pedir una reunión o autorización',
+    nav: [
+      {href:'#correo-activacion', label:'1 · Diagnóstico'},
+      {href:'#correo-modelo', label:'2 · Qué es'},
+      {href:'#correo-ejemplos', label:'2 · Ejemplos'},
+      {href:'#correo-estructura', label:'3 · Estructura'},
+      {href:'#correo-frases', label:'3 · Banco de frases'},
+      {href:'#correo-generador', label:'4 · Arma y descarga'},
+      {href:'#correo-errores', label:'5 · Errores a evitar'},
+      {href:'#correo-autoeval', label:'5 · Checklist final'},
+    ]
+  },
+  cartas: {
+    label: 'Carta formal de autorización',
+    desc: 'El documento oficial con el detalle completo de la investigación',
+    nav: [
+      {href:'#cartas-activacion', label:'1 · Diagnóstico'},
+      {href:'#cartas-modelo', label:'2 · Qué es'},
+      {href:'#cartas-ejemplos', label:'2 · Ejemplos'},
+      {href:'#cartas-estructura', label:'3 · Estructura'},
+      {href:'#cartas-frases', label:'3 · Banco de frases'},
+      {href:'#cartas-generador', label:'4 · Arma y descarga'},
+      {href:'#cartas-errores', label:'5 · Errores a evitar'},
+      {href:'#cartas-autoeval', label:'5 · Checklist final'},
+    ]
+  }
+};
+let activeMode = 'correo';
+
+function renderModeTabs(){
+  document.getElementById('modeTabs').innerHTML = Object.keys(modes).map(m => `
+    <button type="button" class="modeTabBtn${m===activeMode?' active':''}" data-mode="${m}">
+      <span class="mt-title">${modes[m].label}</span>
+      <span class="mt-desc">${modes[m].desc}</span>
+    </button>
+  `).join('');
+  document.querySelectorAll('.modeTabBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeMode = btn.dataset.mode;
+      document.getElementById('panel-correo').classList.toggle('active', activeMode==='correo');
+      document.getElementById('panel-cartas').classList.toggle('active', activeMode==='cartas');
+      renderModeTabs();
+      renderNav();
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+}
+function renderNav(){
+  document.getElementById('navRow').innerHTML = modes[activeMode].nav.map(n =>
+    `<a href="${n.href}" style="flex:none;padding:14px 14px;font:600 13px 'Open Sans',sans-serif;color:#1a232b;text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap">${n.label}</a>`
+  ).join('');
+}
+renderModeTabs();
+renderNav();
+
+// ---------- BACK TO TOP ----------
+const backBtn = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 480) backBtn.classList.add('show');
+  else backBtn.classList.remove('show');
+});
+backBtn.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+// ---------- TOGGLES (ejemplos, ambos paneles) ----------
+document.querySelectorAll('[data-toggle]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = document.getElementById(btn.dataset.toggle);
+    const isOpen = target.style.display !== 'none';
+    const isFlex = btn.dataset.toggle.endsWith('ExB');
+    target.style.display = isOpen ? 'none' : (isFlex ? 'flex' : 'block');
+    btn.textContent = isOpen ? 'Ver ejemplo ▾' : 'Ocultar ejemplo ▴';
+  });
+});
+
+/* =====================================================================
+   DIAGNÓSTICO: encontrar el error dentro del documento completo
+   ===================================================================== */
+function makeHunt(segments, wrapId, countId, announceId, revealId){
+  const found = new Set();
+  const totalErrors = segments.filter(s => s.isError).length;
+  function render(){
+    const wrap = document.getElementById(wrapId);
+    wrap.innerHTML = `<div class="hunt-doc">` +
+      segments.map((s,i) => {
+        const cls = 'huntSeg' + (s.isError && found.has(i) ? ' found' : '');
+        return `<span class="${cls}" data-i="${i}" tabindex="0" role="button">${esc(s.text).replace(/\n/g,'<br>')}</span>${s.br ? '<br><br>' : ' '}`;
+      }).join('') +
+      `</div>` +
+      segments.map((s,i) => (s.isError && found.has(i)) ? `
+        <div class="hunt-feedback">
+          <p><strong>Encontraste un error:</strong> ${s.expl}</p>
+        </div>` : '').join('');
+    wrap.querySelectorAll('.huntSeg').forEach(el => {
+      const i = +el.dataset.i;
+      el.addEventListener('click', () => handleClick(i));
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(i); } });
+    });
+  }
+  function handleClick(i){
+    const s = segments[i];
+    const announce = document.getElementById(announceId);
+    if (s.isError) {
+      if (!found.has(i)) {
+        found.add(i);
+        render();
+        updateCount();
+        if (announce) announce.textContent = 'Encontraste un error: ' + s.expl;
+      }
+    } else {
+      const el = document.querySelector(`#${wrapId} .huntSeg[data-i="${i}"]`);
+      if (el) { el.classList.remove('miss'); void el.offsetWidth; el.classList.add('miss'); }
+      if (announce) announce.textContent = 'Esta parte está bien. Sigue buscando.';
+    }
+  }
+  function updateCount(){
+    document.getElementById(countId).textContent = `${found.size} de ${totalErrors} errores encontrados`;
+  }
+  const revealBtn = document.getElementById(revealId);
+  if (revealBtn) revealBtn.addEventListener('click', () => {
+    segments.forEach((s,i) => { if (s.isError) found.add(i); });
+    render(); updateCount();
+  });
+  render();
+  updateCount();
+}
+
+// ---- Diagnóstico CORREO: correo real (adaptado), con 3 errores ----
+makeHunt([
+  {text:'Estimado/a Director/a, Sr/a. Pérez:', isError:true, br:true,
+    expl:'quedaron las dos opciones de tratamiento juntas, con barras "/", y el nombre está incompleto (falta el nombre y el segundo apellido). Debe ser una sola combinación coherente y el nombre completo: "Estimada Directora, Sra. Marcela Pérez Soto:".'},
+  {text:'Junto con saludar cordialmente, somos estudiantes de la carrera de Pedagogía en Educación Básica de la Universidad de Los Lagos, sede Osorno.', isError:false, br:true},
+  {text:'Quisiéramos ir a tu colegio a hacer una encuesta.', isError:true, br:true,
+    expl:'el tono es demasiado informal para un correo institucional ("tu colegio"), y no explica sobre qué trata la encuesta ni la investigación.'},
+  {text:'Sin más, quedamos atentos/as a su respuesta.', isError:true, br:true,
+    expl:'el correo termina sin haber mencionado que se adjunta la carta con el detalle completo de la investigación. Vuelve a leer todo el correo: ¿en algún momento se menciona el adjunto?'},
+  {text:'Saludos cordiales,\nMaría Soto y Juan Pérez.', isError:false, br:false},
+], 'correoHuntWrap', 'correoHuntCount', 'correoHuntAnnounce', 'correoHuntReveal');
+
+// ---- Diagnóstico CARTAS: carta real (adaptada), con 3 errores ----
+makeHunt([
+  {text:'Estimado/a Director/a, Sr/a. XXXXX (CON AMBOS APELLIDOS)', isError:true, br:true,
+    expl:'quedaron las dos opciones de tratamiento juntas, con barras "/", y además quedó el marcador de la plantilla sin completar. Debe ser una sola combinación coherente y el nombre real, por ejemplo: "Estimada Directora, Sra. Marcela Ríos Alarcón".'},
+  {text:'Somos estudiantes de la carrera de pedagogia en lengua castellana, de la Universidad de Los Lagos, de la ciudad de Osorno.', isError:true, br:true,
+    expl:'el nombre de la carrera está incompleto y sin mayúsculas ni tildes. Lo correcto es el nombre oficial completo: "Pedagogía en Educación Media en Lengua Castellana y Comunicaciones".'},
+  {text:'A través de esta carta, queremos solicitar su autorización para llevar a cabo nuestra investigación, la que tiene como propósito principal "conocer la percepción docente sobre el uso de TIC en el aula".', isError:false, br:true},
+  {text:'Para poder cumplir con este objetivo, nos enfocaremos en (A CONTINUACIÓN, DEJAR LO QUE CORRESPONDA).', isError:true, br:true,
+    expl:'quedó la instrucción de la plantilla sin borrar, justo donde debería ir el detalle real (por ejemplo, a quién van a entrevistar o encuestar). Ese texto nunca debe llegar a la versión final.'},
+  {text:'La académica que apoya este trabajo es la Dra. Camila Reyes Muñoz, cuyo correo electrónico es camila.reyes@ulagos.cl.', isError:false, br:false},
+], 'cartasHuntWrap', 'cartasHuntCount', 'cartasHuntAnnounce', 'cartasHuntReveal');
+
+/* =====================================================================
+   ESTRUCTURA: ordenar los fragmentos
+   ===================================================================== */
+function shuffleArr(arr){
+  const a = arr.slice();
+  for (let i = a.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; }
+  return a;
+}
+function makeReorder(parts, wrapId, resetId, feedbackId){
+  const correctOrder = parts.map(p => p.n);
+  let shuffled = shuffleArr(parts);
+  let slots = new Array(parts.length).fill(null);
+  let checked = false;
+
+  function render(){
+    const wrap = document.getElementById(wrapId);
+    const placedNs = new Set(slots.filter(Boolean).map(s => s.n));
+    wrap.innerHTML = `
+      <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792;margin-bottom:10px">Fragmentos (haz clic en el orden correcto)</p>
+      <div class="cardsGrid" style="margin-bottom:22px">
+        ${shuffled.map(p => `
+          <button type="button" class="orderCard" data-n="${p.n}" ${placedNs.has(p.n)?'disabled':''} style="border-left-color:${p.color}">
+            <span style="font-size:13px;line-height:1.5;color:#3a4551">${p.texto}</span>
+          </button>
+        `).join('')}
+      </div>
+      <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792;margin-bottom:10px">Tu orden</p>
+      <div class="cardsGrid">
+        ${slots.map((s,i) => {
+          let borderColor = '#c9d3db';
+          if (s) borderColor = checked ? (s.n === correctOrder[i] ? '#3FAE29' : '#b0392b') : '#0055B7';
+          return `<div class="orderSlot${s?' filled':''}" style="border-color:${borderColor}">
+            <span style="font:700 11px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792">Posición ${i+1}</span>
+            ${s ? `<span style="display:block;font-size:13px;font-weight:700;margin-top:4px;color:#1a232b">${s.titulo}</span>` : `<span style="display:block;font-size:12.5px;margin-top:4px;color:#b7c2cc">Vacío</span>`}
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+    wrap.querySelectorAll('.orderCard').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const n = btn.dataset.n;
+        const part = parts.find(p => p.n === n);
+        const idx = slots.findIndex(s => !s);
+        if (idx === -1) return;
+        slots[idx] = part;
+        render();
+        if (slots.every(Boolean)) checkOrder();
+      });
+    });
+  }
+
+  function checkOrder(){
+    checked = true;
+    render();
+    const allCorrect = slots.every((s,i) => s.n === correctOrder[i]);
+    document.getElementById(feedbackId).innerHTML = allCorrect
+      ? `<div class="hunt-feedback"><p><strong>¡Orden correcto!</strong> Esa es la estructura que debe seguir siempre.</p></div>`
+      : `<div class="hunt-feedback" style="background:#fdeeee;border-left-color:#b0392b"><p style="color:#3a4551"><strong style="color:#b0392b">Todavía no.</strong> Los bordes verdes están en la posición correcta; los rojos, no. Presiona "Reiniciar" para volver a intentarlo.</p></div>`;
+  }
+
+  document.getElementById(resetId).addEventListener('click', () => {
+    shuffled = shuffleArr(parts);
+    slots = new Array(parts.length).fill(null);
+    checked = false;
+    document.getElementById(feedbackId).innerHTML = '';
+    render();
+  });
+
+  render();
+}
+
+/* =====================================================================
+   4 PARTES (step-cards)
+   ===================================================================== */
+function renderPasos(wrapId, pasos){
+  document.getElementById(wrapId).innerHTML = pasos.map(p => `
+    <div class="step-card" style="background:${p.color}">
+      <p style="font:700 24px 'Roboto Condensed',sans-serif;opacity:.55;margin-bottom:4px">${p.n}</p>
+      <p style="font:700 16px 'Roboto Condensed',sans-serif;margin-bottom:2px">${p.titulo}</p>
+      <p style="font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;opacity:.85;margin-bottom:10px">${p.pregunta}</p>
+      <p style="font-size:13.5px;line-height:1.55;margin:0;opacity:.95">${p.desc}</p>
+    </div>
+  `).join('');
+}
+renderPasos('correoPasosWrap', [
+  {n:'A', color:'#0055B7', titulo:'Saludo', pregunta:'¿A quién le escribo?', desc:'Tratamiento correcto y coherente en género: "Estimada Directora" o "Estimado Director", nunca los dos.'},
+  {n:'B', color:'#3FAE29', titulo:'Preséntense', pregunta:'¿Quiénes somos?', desc:'Carrera y universidad, o una referencia a la conversación previa si ya se conocen.'},
+  {n:'C', color:'#9F26B4', titulo:'Tema y solicitud', pregunta:'¿Para qué escribo?', desc:'Una frase breve del tema, qué piden (reunión o autorización) y que adjuntan la carta.'},
+  {n:'D', color:'#1C6AA0', titulo:'Cierre', pregunta:'¿Cómo termino?', desc:'Agradecimiento y despedida formal.'},
+]);
+renderPasos('cartasPasosWrap', [
+  {n:'A', color:'#0055B7', titulo:'Encabezado', pregunta:'¿A quién le escribo?', desc:'Tratamiento correcto (una sola opción) y nombre completo del/la director/a, con ambos apellidos.'},
+  {n:'B', color:'#3FAE29', titulo:'Presentación', pregunta:'¿Quiénes somos?', desc:'Carrera, universidad y para qué están investigando (Licenciatura en Educación).'},
+  {n:'C', color:'#9F26B4', titulo:'Objetivo y solicitud', pregunta:'¿Qué pedimos?', desc:'El propósito de la investigación y a quién se aplicarán entrevistas o encuestas.'},
+  {n:'D', color:'#1C6AA0', titulo:'Cierre', pregunta:'¿Cómo terminamos?', desc:'Agradecimiento, datos de contacto de la académica, y firma.'},
+]);
+
+makeReorder([
+  {n:'A', color:'#0055B7', titulo:'Saludo', texto:'"Estimada Directora, Sra. Marcela Ríos Alarcón:"'},
+  {n:'B', color:'#3FAE29', titulo:'Presentación', texto:'"Junto con saludar cordialmente, somos estudiantes de la carrera de Pedagogía en Educación Media en Inglés de la Universidad de Los Lagos, sede Osorno."'},
+  {n:'C', color:'#9F26B4', titulo:'Tema y solicitud', texto:'"Nos encontramos desarrollando una investigación sobre el uso de retroalimentación oral en clases de inglés, y quisiéramos solicitar su autorización para aplicarla. Adjuntamos una carta con el detalle completo."'},
+  {n:'D', color:'#1C6AA0', titulo:'Cierre', texto:'"Quedamos atentos/as a su respuesta y agradecemos desde ya su tiempo. Saludos cordiales."'},
+], 'correoOrderWrap', 'correoOrderReset', 'correoOrderFeedback');
+
+makeReorder([
+  {n:'A', color:'#0055B7', titulo:'Encabezado', texto:'"Estimada Directora, Sra. Marcela Ríos Alarcón. Establecimiento educacional Liceo Bicentenario Rayen Vera. Presente:"'},
+  {n:'B', color:'#3FAE29', titulo:'Presentación', texto:'"Somos estudiantes de la carrera de Pedagogía en Educación Media en Inglés, de la Universidad de Los Lagos. Nos encontramos realizando un trabajo de investigación para la obtención del Grado de Licenciatura en Educación."'},
+  {n:'C', color:'#9F26B4', titulo:'Objetivo y solicitud', texto:'"Queremos solicitar su autorización para llevar a cabo nuestra investigación, cuyo propósito principal es conocer la percepción docente sobre el uso de retroalimentación oral en clases de inglés."'},
+  {n:'D', color:'#1C6AA0', titulo:'Cierre', texto:'"La académica que apoya este trabajo es la Dra. Camila Reyes Muñoz. Agradecemos desde ya su atención y quedamos atentas/os a su respuesta."'},
+], 'cartasOrderWrap', 'cartasOrderReset', 'cartasOrderFeedback');
+
+/* =====================================================================
+   BANCO DE FRASES
+   ===================================================================== */
+function renderFrases(wrapId, grupos){
+  document.getElementById(wrapId).innerHTML = grupos.map(c => `
+    <div class="conn-group" style="border-left:4px solid ${c.color}">
+      <p style="font:700 14px 'Roboto Condensed',sans-serif;margin-bottom:10px;color:${c.color}">${c.titulo}</p>
+      <ul style="margin:0;padding-left:18px;font-size:14px;line-height:1.9;color:#3a4551">
+        ${c.frases.map(f => `<li>${f}</li>`).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+renderFrases('correoFrasesWrap', [
+  {titulo:'Para el saludo (primera vez)', color:'#0055B7', frases:['Junto con saludar cordialmente...','Nos dirigimos a usted en calidad de estudiantes de...']},
+  {titulo:'Para el saludo (ya se conocen)', color:'#3FAE29', frases:['Como conversamos en el liceo la semana pasada...','Junto con saludar, quisiera formalizar por este medio lo conversado...']},
+  {titulo:'Para plantear el tema', color:'#9F26B4', frases:['Le escribimos porque nos encontramos desarrollando una investigación sobre...','El motivo de este correo es solicitar su autorización para...']},
+  {titulo:'Para pedir una reunión', color:'#1C6AA0', frases:['¿Sería posible coordinar una breve reunión para conversar los detalles?','Quedamos atentos/as a la fecha y hora que le acomode.']},
+  {titulo:'Para mencionar el adjunto', color:'#7a1f96', frases:['Adjuntamos una carta con el detalle completo de la investigación.','Junto a este correo, encontrará la carta de presentación de nuestro estudio.']},
+  {titulo:'Para el cierre', color:'#b0392b', frases:['Agradecemos desde ya su atención y quedamos atentos/as a su respuesta.','Sin otro particular, se despiden cordialmente...']},
+]);
+renderFrases('cartasFrasesWrap', [
+  {titulo:'Para presentarse', color:'#0055B7', frases:['Junto con saludar cordialmente...','Nos encontramos realizando un trabajo de investigación para optar al Grado de Licenciatura en Educación...','Nos dirigimos a usted en calidad de estudiantes de...']},
+  {titulo:'Para plantear el objetivo', color:'#9F26B4', frases:['Este trabajo tiene como propósito principal...','La investigación busca conocer/describir/analizar...','A través de esta carta, queremos solicitar su autorización para...']},
+  {titulo:'Para pedir autorización', color:'#3FAE29', frases:['Le solicitamos tenga a bien autorizar que...','Nos gustaría solicitar su autorización para poder llevar a cabo...','Quedamos a la espera de su autorización para...']},
+  {titulo:'Para el cierre', color:'#1C6AA0', frases:['Agradecemos desde ya su atención y quedamos atentas/os a su respuesta.','Quedamos a su disposición para resolver cualquier duda o consulta.','Sin otro particular, se despiden atentamente...']},
+]);
+
+/* =====================================================================
+   EJEMPLOS COMPLETOS (Ejemplo B, con las 4 partes marcadas)
+   ===================================================================== */
+function renderEjemploCompleto(id, partes){
+  document.getElementById(id).innerHTML = partes.map(e => `
+    <div class="hoverLift" style="border-left:4px solid ${e.color};background:#f4f6f8;border-radius:0 8px 8px 0;padding:14px 16px">
+      <p style="font:700 11px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.05em;color:${e.color};margin-bottom:6px">${e.label}</p>
+      <p style="font-size:14.5px;line-height:1.6;color:#3a4551;margin:0">${e.texto}</p>
+    </div>
+  `).join('');
+}
+renderEjemploCompleto('correoExB', [
+  {label:'A · Saludo', color:'#0055B7', texto:'"Estimada Directora, Sra. Marcela Ríos Alarcón:"'},
+  {label:'B · Presentación', color:'#3FAE29', texto:'"Junto con saludar cordialmente, somos estudiantes de la carrera de Pedagogía en Educación Media en Inglés de la Universidad de Los Lagos, sede Osorno."'},
+  {label:'C · Tema y solicitud', color:'#9F26B4', texto:'"Nos encontramos desarrollando una investigación sobre el uso de retroalimentación oral en clases de inglés, y quisiéramos solicitar su autorización para aplicarla en el establecimiento que usted dirige. Adjuntamos una carta con el detalle completo."'},
+  {label:'D · Cierre', color:'#1C6AA0', texto:'"Quedamos atentos/as a su respuesta y agradecemos desde ya su tiempo. Saludos cordiales, [nombres]."'},
+]);
+renderEjemploCompleto('cartasExB', [
+  {label:'A · Encabezado', color:'#0055B7', texto:'"Estimada Directora, Sra. Marcela Ríos Alarcón. Establecimiento educacional Liceo Bicentenario Rayen Vera. Presente:"'},
+  {label:'B · Presentación', color:'#3FAE29', texto:'"Somos estudiantes de la carrera de Pedagogía en Educación Media en Inglés, de la Universidad de Los Lagos, de la ciudad de Osorno. Nos encontramos realizando un trabajo de investigación para la obtención del Grado de Licenciatura en Educación, a cargo del Departamento de Educación."'},
+  {label:'C · Objetivo y solicitud', color:'#9F26B4', texto:'"Queremos solicitar su autorización para llevar a cabo nuestra investigación, cuyo propósito principal es conocer la percepción docente sobre el uso de retroalimentación oral en clases de inglés. Para ello, nos enfocaremos en entrevistar a docentes del área de inglés de segundo ciclo."'},
+  {label:'D · Cierre', color:'#1C6AA0', texto:'"La académica que apoya este trabajo es la Dra. Camila Reyes Muñoz, cuyo correo electrónico es camila.reyes@ulagos.cl. Agradecemos desde ya su atención y quedamos atentas/os a su respuesta."'},
+]);
+
+/* =====================================================================
+   ERRORES COMUNES
+   ===================================================================== */
+function renderErrores(wrapId, errores){
+  document.getElementById(wrapId).innerHTML = errores.map((e,i) => `
+    <div style="display:flex;gap:16px;padding:16px 0;${i < errores.length-1 ? 'border-bottom:1px solid #eef1f3' : ''}">
+      <div style="flex:none;width:32px;height:32px;border-radius:50%;background:#fdeeee;color:#b0392b;display:flex;align-items:center;justify-content:center;font:700 14px 'Roboto Condensed',sans-serif">${i+1}</div>
+      <div>
+        <p style="font:700 15px 'Roboto Condensed',sans-serif;margin-bottom:4px;color:#0d1b2a">${e.t}</p>
+        <p style="font-size:14px;line-height:1.55;color:#55606b;margin:0">${e.d}</p>
+      </div>
+    </div>
+  `).join('');
+}
+renderErrores('correoErroresWrap', [
+  {t:'Partir sin saludo o sin presentarse', d:'Ir directo a la solicitud, sin un tratamiento formal ni decir quiénes son.'},
+  {t:'No decir de qué trata la investigación', d:'Pedir autorización o una reunión sin explicar, aunque sea en una frase, el tema del estudio.'},
+  {t:'Olvidar mencionar que se adjunta la carta', d:'Quien lee debe saber que el detalle completo viene en un archivo adjunto, no solo en el cuerpo del correo.'},
+  {t:'Ser demasiado informal', d:'"Hola", "profe", emojis o abreviaciones no corresponden a un correo institucional, aunque ya se conozcan.'},
+  {t:'Enviar el correo sin adjuntar realmente el archivo', d:'Revisa que el archivo esté efectivamente adjunto antes de presionar enviar.'},
+  {t:'No mencionar un acercamiento previo', d:'Si ya conversaron en persona, ignorarlo hace que el correo suene genérico y repetitivo.'},
+]);
+renderErrores('cartasErroresWrap', [
+  {t:'Dejar dos opciones de tratamiento juntas', d:'"Director/a", "Sr./a." con barras, sin elegir una combinación coherente y borrar la otra.'},
+  {t:'Escribir el nombre de la carrera incompleto', d:'Sin mayúsculas, sin tildes o sin el nombre oficial completo de la carrera.'},
+  {t:'Descuadrar el género en el resto del texto', d:'Escribir "Estimada" al principio y luego "Director" sin la "a" más abajo, o viceversa.'},
+  {t:'Cortar el objetivo general a la mitad', d:'Dejando la cita entre comillas sin terminar, o con el marcador de la plantilla todavía adentro.'},
+  {t:'Copiar la carta pero no revisarla en voz alta', d:'La mayoría de las erratas se detectan leyendo en voz alta, no solo mirando la pantalla.'},
+  {t:'Enviar un archivo que no es la versión final', d:'Con marcadores de plantilla todavía sin completar.'},
+]);
+
+/* =====================================================================
+   CHECKLIST FINAL
+   ===================================================================== */
+function makeChecklist(items, wrapId, countId, announceId){
+  const state = {};
+  function render(){
+    const wrap = document.getElementById(wrapId);
+    wrap.innerHTML = items.map((c,i) => `
+      <label class="check-item" style="cursor:pointer">
+        <input type="checkbox" data-i="${i}" ${state[i] ? 'checked' : ''}>
+        <span style="font-size:14.5px;line-height:1.5;color:${state[i] ? '#8FC6E8' : '#e4e9ee'}">${c}</span>
+      </label>
+    `).join('');
+    wrap.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('change', () => { state[inp.dataset.i] = inp.checked; render(); });
+    });
+    const done = Object.values(state).filter(Boolean).length;
+    document.getElementById(countId).textContent = `${done} de ${items.length} revisados`;
+    const announce = document.getElementById(announceId);
+    if (announce) announce.textContent = `${done} de ${items.length} ítems revisados.`;
+  }
+  render();
+}
+makeChecklist([
+  '¿Empecé con un saludo formal, coherente en género (Director/a, Sr./Sra.)?',
+  '¿Me presenté, o mencioné la conversación previa si ya nos conocíamos?',
+  '¿Se entiende de qué trata la investigación en una frase?',
+  '¿Dije qué estoy solicitando: una reunión o la autorización?',
+  '¿Mencioné que adjunto la carta de presentación?',
+  '¿Mantuve un tono formal de principio a fin?',
+  '¿Adjunté realmente el archivo antes de enviar?',
+], 'correoAutoevalWrap', 'correoAutoevalCount', 'correoAutoevalAnnounce');
+
+makeChecklist([
+  '¿Elegí "Director" o "Directora" y "Sr." o "Sra." de forma coherente entre sí?',
+  '¿El nombre del/la director/a está completo, con ambos apellidos?',
+  '¿El nombre de mi carrera está completo, con mayúsculas y tildes correctas?',
+  '¿El objetivo general se lee completo y con sentido, entre comillas?',
+  '¿Los nombres de todos/as mis compañeros/as están completos y bien escritos?',
+  '¿No queda ningún marcador de plantilla sin completar?',
+  '¿Leí el documento completo en voz alta, buscando errores de ortografía y redacción?',
+  '¿Adjunté el archivo correcto antes de enviar el correo?',
+], 'cartasAutoevalWrap', 'cartasAutoevalCount', 'cartasAutoevalAnnounce');
+
+/* =====================================================================
+   GENERADOR — utilidades compartidas
+   ===================================================================== */
+const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function tratamientoTexto(d, cargo){
+  const base = d.generoDirector === 'director' ? 'Estimado Director' : 'Estimada Directora';
+  const generoTxt = cargo ? `${base} ${cargo}` : base;
+  const srTxt = d.tratamiento === 'sr' ? 'Sr.' : 'Sra.';
+  const nombre = (d.nombreDirector||'').trim() || '[nombre y ambos apellidos del/la director/a]';
+  return { generoTxt, srLinea: `${srTxt} ${nombre}` };
+}
+
+function renderPreview(data, boxId){
+  const box = document.getElementById(boxId);
+  let html = '';
+  if (data.asunto) html += `<p style="font-weight:700;margin:0 0 14px"><span style="text-transform:uppercase;font-size:11px;letter-spacing:.05em;color:#7b8792;font-family:'Open Sans',sans-serif;display:block;margin-bottom:3px">Asunto</span>${esc(data.asunto)}</p>`;
+  html += data.paragraphs.map(p => `<p style="margin:0 0 14px" class="${p.align==='right'?'preview-align-right':p.align==='center'?'preview-align-center':''}">${highlightMissing(p.text)}</p>`).join('');
+  box.innerHTML = html;
+}
+
+const CARTA_HEADER_BANNER_B64 = "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";
+
+function bindCopyDownload(buildFn, ids, filenamePrefix, wordOptions){
+  wordOptions = wordOptions || {};
+  document.getElementById(ids.copy).addEventListener('click', () => {
+    const data = buildFn();
+    let text = data.asunto ? `Asunto: ${data.asunto}\n\n` : '';
+    text += data.paragraphs.map(p => p.text).join('\n\n');
+    const done = () => {
+      const a = document.getElementById(ids.announce);
+      if (a) a.textContent = 'Texto copiado al portapapeles.';
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else { fallbackCopy(text, done); }
+  });
+
+  document.getElementById(ids.word).addEventListener('click', async () => {
+    const { Document, Packer, Paragraph, TextRun, AlignmentType, ImageRun, Header } = docx;
+    const data = buildFn();
+    const alignMap = { right: AlignmentType.RIGHT, center: AlignmentType.CENTER, left: AlignmentType.LEFT };
+    const font = wordOptions.font || 'Calibri';
+    const children = [];
+    if (data.asunto) children.push(new Paragraph({ children:[ new TextRun({text:'Asunto: ', bold:true}), new TextRun({text:data.asunto}) ], spacing:{after:300} }));
+    data.paragraphs.forEach(p => {
+      const lines = p.text.split('\n');
+      lines.forEach((line, i) => {
+        children.push(new Paragraph({
+          text: line,
+          alignment: alignMap[p.align] || (wordOptions.justify ? AlignmentType.JUSTIFIED : AlignmentType.LEFT),
+          spacing: { after: i === lines.length-1 ? 240 : 40, line: 360 },
+        }));
+      });
+    });
+    const headerBanner = wordOptions.logo ? new Header({
+      children: [ new Paragraph({
+        children: [ new ImageRun({
+          data: CARTA_HEADER_BANNER_B64,
+          type: 'png',
+          transformation: { width: 624, height: 68 },
+        }) ],
+        spacing: { after: 200 },
+      }) ],
+    }) : undefined;
+    const wordDoc = new Document({
+      styles: { default: { document: { run: { font, size: 24 } } } },
+      sections: [{
+        properties: {
+          page: {
+            size: { width: 12240, height: 15840 },
+            margin: { top: 1440, bottom: 1440, left: 1440, right: 1440, header: 500 },
+          },
+        },
+        headers: headerBanner ? { default: headerBanner } : undefined,
+        children,
+      }],
+    });
+    const blob = await Packer.toBlob(wordDoc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filenamePrefix() + '.docx';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+}
+
+/* =====================================================================
+   GENERADOR — CORREO
+   ===================================================================== */
+const CORREO_KEY = 'ulagos_correo_borrador_v1';
+let correo = {
+  carrera:'', mencion:'', integrantes:'', establecimiento:'',
+  generoDirector:'directora', tratamiento:'sra', nombreDirector:'',
+  docenteNombre:'',
+  yaConversaron:false, dondeCuando:'',
+  tema:'', quiereReunion:true, disponibilidad:'',
+};
+function saveCorreo(){
+  try {
+    localStorage.setItem(CORREO_KEY, JSON.stringify(correo));
+    const s = document.getElementById('correoAutosaveStatus');
+    if (s) s.innerHTML = `💾 Guardado ${new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})} · Tu progreso se guarda automáticamente en este navegador. Se recomienda descargar tu trabajo periódicamente.`;
+  } catch(e) {}
+}
+function loadCorreo(){
+  try {
+    const raw = localStorage.getItem(CORREO_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (data && typeof data === 'object') { correo = Object.assign(correo, data); return true; }
+  } catch(e) {}
+  return false;
+}
+if (loadCorreo()) {
+  const s = document.getElementById('correoAutosaveStatus');
+  if (s) s.innerHTML = '💾 Recuperamos el borrador que tenías guardado en este navegador.';
+}
+
+function renderCorreoCampos(){
+  const wrap = document.getElementById('correoCampos');
+  wrap.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px">
+      <div class="tpl-field">
+        <label>Carrera</label>
+        <input type="text" id="c_carrera" placeholder="Ej: Pedagogía en Educación Básica" value="${esc(correo.carrera)}">
+      </div>
+      <div class="tpl-field">
+        <label>Mención / especialidad</label>
+        <input type="text" id="c_mencion" placeholder="Ej: mención Lenguaje" value="${esc(correo.mencion)}">
+      </div>
+      <div class="tpl-field" style="grid-column:1/-1">
+        <label>Nombres y apellidos de los/as estudiantes</label>
+        <input type="text" id="c_integrantes" placeholder="Ej: María Soto Vera, Juan Pérez Loncón" value="${esc(correo.integrantes)}">
+      </div>
+      <div class="tpl-field" style="grid-column:1/-1">
+        <label>Establecimiento educacional</label>
+        <input type="text" id="c_establecimiento" placeholder="Ej: Liceo Bicentenario Rayen Vera" value="${esc(correo.establecimiento)}">
+      </div>
+      <div class="tpl-field">
+        <label>Tratamiento del/la director/a</label>
+        <select id="c_generoDirector">
+          <option value="directora" ${correo.generoDirector==='directora'?'selected':''}>Estimada Directora</option>
+          <option value="director" ${correo.generoDirector==='director'?'selected':''}>Estimado Director</option>
+        </select>
+      </div>
+      <div class="tpl-field">
+        <label>Sr. / Sra.</label>
+        <select id="c_tratamiento">
+          <option value="sra" ${correo.tratamiento==='sra'?'selected':''}>Sra.</option>
+          <option value="sr" ${correo.tratamiento==='sr'?'selected':''}>Sr.</option>
+        </select>
+      </div>
+      <div class="tpl-field" style="grid-column:1/-1">
+        <label>Nombre y ambos apellidos del/la director/a</label>
+        <input type="text" id="c_nombreDirector" placeholder="Ej: Marcela Ríos Alarcón" value="${esc(correo.nombreDirector)}">
+      </div>
+      <div class="tpl-field" style="grid-column:1/-1">
+        <label>Nombre y título del/la docente</label>
+        <input type="text" id="c_docenteNombre" placeholder="Ej: Dra. Camila Reyes Muñoz" value="${esc(correo.docenteNombre)}">
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid #eef1f3;margin:18px 0">
+    <label class="check-item"><input type="checkbox" id="c_yaConversaron" ${correo.yaConversaron?'checked':''}><span>Ya conversamos en persona antes (pasillo, visita, reunión)</span></label>
+    ${correo.yaConversaron ? `<div class="tpl-field" style="margin:10px 0 0 31px"><label>¿Dónde o cuándo?</label><input type="text" id="c_dondeCuando" placeholder="Ej: en el liceo, la semana pasada" value="${esc(correo.dondeCuando)}"></div>` : ''}
+    <div class="tpl-field" style="margin-top:16px">
+      <label>¿De qué trata la investigación? (una frase breve)</label>
+      <textarea id="c_tema" placeholder="Ej: el uso de TIC en el aula">${esc(correo.tema)}</textarea>
+    </div>
+    <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792;margin:16px 0 8px">¿Qué están solicitando?</p>
+    <div style="display:flex;flex-direction:column">
+      <label class="check-item"><input type="radio" name="c_solicitud" id="c_reunionSi" ${correo.quiereReunion?'checked':''}><span>Agendar una reunión para conversar los detalles</span></label>
+      <label class="check-item"><input type="radio" name="c_solicitud" id="c_reunionNo" ${!correo.quiereReunion?'checked':''}><span>Solicitar la autorización directamente por este medio</span></label>
+    </div>
+    ${correo.quiereReunion ? `<div class="tpl-field" style="margin-top:10px"><label>Disponibilidad (opcional)</label><input type="text" id="c_disponibilidad" placeholder="Ej: cualquier día de la próxima semana, en la mañana" value="${esc(correo.disponibilidad)}"></div>` : ''}
+  `;
+
+  const bind = (id, prop, evt, getter) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener(evt, () => {
+      correo[prop] = getter ? getter(el) : el.value;
+      saveCorreo();
+      renderCorreoPreview();
+      if (evt === 'change') renderCorreoCampos();
+    });
+  };
+  bind('c_carrera','carrera','input'); bind('c_mencion','mencion','input'); bind('c_integrantes','integrantes','input');
+  bind('c_establecimiento','establecimiento','input'); bind('c_generoDirector','generoDirector','change');
+  bind('c_tratamiento','tratamiento','change'); bind('c_nombreDirector','nombreDirector','input');
+  bind('c_docenteNombre','docenteNombre','input');
+  bind('c_yaConversaron','yaConversaron','change', el => el.checked);
+  bind('c_dondeCuando','dondeCuando','input'); bind('c_tema','tema','input');
+  bind('c_disponibilidad','disponibilidad','input');
+  const rSi = document.getElementById('c_reunionSi'), rNo = document.getElementById('c_reunionNo');
+  if (rSi) rSi.addEventListener('change', () => { correo.quiereReunion = true; saveCorreo(); renderCorreoCampos(); renderCorreoPreview(); });
+  if (rNo) rNo.addEventListener('change', () => { correo.quiereReunion = false; saveCorreo(); renderCorreoCampos(); renderCorreoPreview(); });
+}
+
+function buildCorreo(){
+  const carrera = correo.carrera.trim() || '[nombre de la carrera]';
+  const mencion = correo.mencion.trim() || '[mención/especialidad]';
+  const integrantes = correo.integrantes.trim() || '[nombres y apellidos de los/as estudiantes]';
+  const establecimiento = correo.establecimiento.trim() || '[nombre completo de la institución]';
+  const tema = correo.tema.trim() || '[tema de la investigación]';
+  const docenteNombre = correo.docenteNombre.trim() || '[nombre y título del/la docente]';
+  const { generoTxt, srLinea } = tratamientoTexto(correo);
+
+  const saludo = correo.yaConversaron
+    ? `Como conversamos ${correo.dondeCuando.trim() ? correo.dondeCuando.trim() : '[dónde o cuándo]'}, junto con saludar, quisiera formalizar por este medio nuestra solicitud.`
+    : `Junto con saludar cordialmente, le escribimos porque somos estudiantes de la carrera de ${carrera} de la Universidad de Los Lagos, sede Osorno. Nos encontramos realizando un trabajo de investigación para optar al Grado de Licenciatura en Educación, a cargo de ${docenteNombre}, académica/o del Departamento de Educación.`;
+
+  const solicitud = correo.quiereReunion
+    ? `Nos gustaría saber si sería posible coordinar una breve reunión para conversar los detalles de nuestra investigación sobre ${tema}, a realizarse en el establecimiento ${establecimiento} que usted dirige.${correo.disponibilidad.trim() ? ' Nuestra disponibilidad es ' + correo.disponibilidad.trim() + '.' : ''} Adjuntamos una carta con el detalle completo de la investigación.`
+    : `Nos gustaría solicitar su autorización para realizar nuestra investigación sobre ${tema} en el establecimiento ${establecimiento} que usted dirige. Adjuntamos una carta con el detalle completo de la investigación y lo que estaríamos solicitando.`;
+
+  return {
+    asunto: 'Contacto estudiantes Universidad de Los Lagos — solicitud de autorización',
+    paragraphs: [
+      { text: `${generoTxt}, ${srLinea}:` },
+      { text: saludo },
+      { text: solicitud },
+      { text: `Quedamos atentos/as a su respuesta y agradecemos desde ya su tiempo.` },
+      { text: `Saludos cordiales,\n${integrantes}\nEstudiantes Pedagogía en ${mencion}\nUniversidad de Los Lagos` },
+    ]
+  };
+}
+function renderCorreoPreview(){ renderPreview(buildCorreo(), 'correoPreviewBox'); }
+
+renderCorreoCampos();
+renderCorreoPreview();
+bindCopyDownload(buildCorreo, {copy:'correoCopyBtn', word:'correoDownloadWordBtn', announce:'correoCopyAnnounce'}, () => 'Correo_primer_acercamiento');
+
+/* =====================================================================
+   GENERADOR — CARTAS
+   ===================================================================== */
+const CARTAS_KEY = 'ulagos_carta_borrador_v1';
+const docTypesCartas = [
+  {id:'cartaA', label:'Carta A · la firman ustedes', hint:'Documento formal que redactan y firman los/as estudiantes.'},
+  {id:'cartaB', label:'Carta B · la firma la profesora', hint:'La completa y firma el/la docente.'},
+  {id:'cartaC', label:'Carta C · a director/a de otra carrera', hint:'Para solicitar autorización y aplicar tu instrumento a estudiantes de otra carrera.'},
+];
+let doc = {
+  tipo:'cartaA',
+  carrera:'', mencion:'', integrantes:'', establecimiento:'',
+  carreraDestino:'', universidadDestino:'',
+  generoDirector:'directora', tratamiento:'sra', nombreDirector:'',
+  docenteNombre:'', docenteCorreo:'', docenteTelefono:'',
+  objetivo:'', mes:'', dia:'',
+  entrevista:false, entrevistaQuienes:'',
+  encuesta:false, encuestaQuienes:'',
+  grupoDocentes:false, grupoEstudiantes:false, grupoDirectivos:false,
+};
+function saveDocState(){
+  try {
+    localStorage.setItem(CARTAS_KEY, JSON.stringify(doc));
+    const s = document.getElementById('cartasAutosaveStatus');
+    if (s) s.innerHTML = `💾 Guardado ${new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})} · Tu progreso se guarda automáticamente en este navegador. Se recomienda descargar tu trabajo periódicamente.`;
+  } catch(e) {}
+}
+function loadDocState(){
+  try {
+    const raw = localStorage.getItem(CARTAS_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (data && typeof data === 'object') { doc = Object.assign(doc, data); return true; }
+  } catch(e) {}
+  return false;
+}
+if (loadDocState()) {
+  const s = document.getElementById('cartasAutosaveStatus');
+  if (s) s.innerHTML = '💾 Recuperamos el borrador que tenías guardado en este navegador.';
+}
+function renderCartasDocTypeRow(){
+  document.getElementById('cartasDocTypeRow').innerHTML = docTypesCartas.map(dt => `
+    <button type="button" class="docTypeBtn${doc.tipo===dt.id?' active':''}" data-tipo="${dt.id}">
+      ${dt.label}
+      <small>${dt.hint}</small>
+    </button>
+  `).join('');
+  document.querySelectorAll('#cartasDocTypeRow .docTypeBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      doc.tipo = btn.dataset.tipo;
+      saveDocState();
+      renderCartasDocTypeRow();
+      renderCartasCampos();
+      renderCartasPreview();
+    });
+  });
+}
+
+function renderCartasCampos(){
+  const esCartaC = doc.tipo === 'cartaC';
+  const cargoLabel = esCartaC ? ' de Carrera' : '';
+  const comunes = document.getElementById('cartasCamposComunes');
+  comunes.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px">
+      <div class="tpl-field">
+        <label>Carrera (la suya)</label>
+        <input type="text" id="f_carrera" placeholder="Ej: Pedagogía en Educación Media en Lengua Castellana y Comunicaciones" value="${esc(doc.carrera)}">
+      </div>
+      <div class="tpl-field">
+        <label>Mención / especialidad</label>
+        <input type="text" id="f_mencion" placeholder="Ej: mención Lenguaje" value="${esc(doc.mencion)}">
+      </div>
+      <div class="tpl-field" style="grid-column:1/-1">
+        <label>Nombres y apellidos de los/as estudiantes</label>
+        <input type="text" id="f_integrantes" placeholder="Ej: María Soto Vera, Juan Pérez Loncón" value="${esc(doc.integrantes)}">
+      </div>
+      ${esCartaC ? `
+      <div class="tpl-field">
+        <label>Carrera a la que pertenece el/la director/a</label>
+        <input type="text" id="f_carreraDestino" placeholder="Ej: Pedagogía en Educación Básica" value="${esc(doc.carreraDestino)}">
+      </div>
+      <div class="tpl-field">
+        <label>Universidad a la que pertenece esa carrera</label>
+        <input type="text" id="f_universidadDestino" placeholder="Ej: Universidad de Los Lagos" value="${esc(doc.universidadDestino)}">
+      </div>
+      ` : `
+      <div class="tpl-field" style="grid-column:1/-1">
+        <label>Establecimiento educacional</label>
+        <input type="text" id="f_establecimiento" placeholder="Ej: Liceo Bicentenario Rayen Vera" value="${esc(doc.establecimiento)}">
+      </div>
+      `}
+      <div class="tpl-field">
+        <label>Tratamiento del/la director/a</label>
+        <select id="f_generoDirector">
+          <option value="directora" ${doc.generoDirector==='directora'?'selected':''}>Estimada Directora${cargoLabel}</option>
+          <option value="director" ${doc.generoDirector==='director'?'selected':''}>Estimado Director${cargoLabel}</option>
+        </select>
+      </div>
+      <div class="tpl-field">
+        <label>Sr. / Sra.</label>
+        <select id="f_tratamiento">
+          <option value="sra" ${doc.tratamiento==='sra'?'selected':''}>Sra.</option>
+          <option value="sr" ${doc.tratamiento==='sr'?'selected':''}>Sr.</option>
+        </select>
+      </div>
+      <div class="tpl-field" style="grid-column:1/-1">
+        <label>Nombre y ambos apellidos del/la director/a</label>
+        <input type="text" id="f_nombreDirector" placeholder="Ej: Marcela Ríos Alarcón" value="${esc(doc.nombreDirector)}">
+      </div>
+      <div class="tpl-field" style="grid-column:1/-1">
+        <label>Objetivo general de la investigación</label>
+        <textarea id="f_objetivo" placeholder="Ej: conocer la percepción docente sobre el uso de TIC en el aula">${esc(doc.objetivo)}</textarea>
+        <p class="field-hint">Escribe una frase clara y breve; se insertará entre comillas automáticamente.</p>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid #eef1f3;margin:18px 0">
+    <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792;margin-bottom:10px">Datos del/la docente</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px">
+      <div class="tpl-field" style="grid-column:1/-1">
+        <label>Nombre y título del/la docente</label>
+        <input type="text" id="f_docenteNombre" placeholder="Ej: Dra. Camila Reyes Muñoz" value="${esc(doc.docenteNombre)}">
+      </div>
+      <div class="tpl-field">
+        <label>Correo del/la docente</label>
+        <input type="text" id="f_docenteCorreo" placeholder="Ej: camila.reyes@ulagos.cl" value="${esc(doc.docenteCorreo)}">
+      </div>
+      <div class="tpl-field">
+        <label>Teléfono del/la docente (opcional)</label>
+        <input type="text" id="f_docenteTelefono" placeholder="Ej: 64-2-333256" value="${esc(doc.docenteTelefono)}">
+      </div>
+    </div>
+  `;
+
+  const extra = document.getElementById('cartasCamposExtra');
+  if (doc.tipo === 'cartaA' || doc.tipo === 'cartaC') {
+    extra.innerHTML = `
+      <hr style="border:none;border-top:1px solid #eef1f3;margin:18px 0">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px">
+        <div class="tpl-field">
+          <label>Mes de envío</label>
+          <select id="f_mes">
+            <option value="">Selecciona un mes</option>
+            ${meses.map(m => `<option value="${m}" ${doc.mes===m?'selected':''}>${m}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+        <label class="check-item"><input type="checkbox" id="f_entrevista" ${doc.entrevista?'checked':''}><span>Aplicaremos entrevistas</span></label>
+        ${doc.entrevista ? `<div class="tpl-field" style="margin-left:31px"><label>¿A quién?</label><input type="text" id="f_entrevistaQuienes" placeholder="Ej: docentes de 5° básico" value="${esc(doc.entrevistaQuienes)}"></div>` : ''}
+        <label class="check-item"><input type="checkbox" id="f_encuesta" ${doc.encuesta?'checked':''}><span>Aplicaremos una encuesta</span></label>
+        ${doc.encuesta ? `<div class="tpl-field" style="margin-left:31px"><label>¿A quién?</label><input type="text" id="f_encuestaQuienes" placeholder="Ej: estudiantes de 3° medio" value="${esc(doc.encuestaQuienes)}"></div>` : ''}
+      </div>
+    `;
+  } else if (doc.tipo === 'cartaB') {
+    extra.innerHTML = `
+      <hr style="border:none;border-top:1px solid #eef1f3;margin:18px 0">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px 18px;margin-bottom:14px">
+        <div class="tpl-field">
+          <label>Día</label>
+          <input type="text" id="f_dia" placeholder="Ej: 12" value="${esc(doc.dia)}">
+        </div>
+        <div class="tpl-field">
+          <label>Mes</label>
+          <select id="f_mes">
+            <option value="">Selecciona un mes</option>
+            ${meses.map(m => `<option value="${m}" ${doc.mes===m?'selected':''}>${m}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792;margin-bottom:8px">¿A quiénes se aplicarán instrumentos?</p>
+      <div style="display:flex;flex-direction:column">
+        <label class="check-item"><input type="checkbox" id="f_grupoDocentes" ${doc.grupoDocentes?'checked':''}><span>Docentes</span></label>
+        <label class="check-item"><input type="checkbox" id="f_grupoEstudiantes" ${doc.grupoEstudiantes?'checked':''}><span>Estudiantes</span></label>
+        <label class="check-item"><input type="checkbox" id="f_grupoDirectivos" ${doc.grupoDirectivos?'checked':''}><span>Equipo directivo</span></label>
+      </div>
+    `;
+  } else {
+    extra.innerHTML = '';
+  }
+
+  bindCartasCampos();
+}
+
+function bindCartasCampos(){
+  const bind = (id, prop, isCheckbox) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener(isCheckbox ? 'change' : 'input', () => {
+      doc[prop] = isCheckbox ? el.checked : el.value;
+      saveDocState();
+      renderCartasPreview();
+      if (isCheckbox) renderCartasCampos();
+    });
+  };
+  bind('f_carrera','carrera'); bind('f_mencion','mencion'); bind('f_integrantes','integrantes');
+  bind('f_establecimiento','establecimiento'); bind('f_carreraDestino','carreraDestino'); bind('f_universidadDestino','universidadDestino');
+  bind('f_generoDirector','generoDirector');
+  bind('f_tratamiento','tratamiento'); bind('f_nombreDirector','nombreDirector');
+  bind('f_docenteNombre','docenteNombre'); bind('f_docenteCorreo','docenteCorreo'); bind('f_docenteTelefono','docenteTelefono');
+  bind('f_objetivo','objetivo'); bind('f_mes','mes'); bind('f_dia','dia');
+  bind('f_entrevista','entrevista',true); bind('f_entrevistaQuienes','entrevistaQuienes');
+  bind('f_encuesta','encuesta',true); bind('f_encuestaQuienes','encuestaQuienes');
+  bind('f_grupoDocentes','grupoDocentes',true); bind('f_grupoEstudiantes','grupoEstudiantes',true); bind('f_grupoDirectivos','grupoDirectivos',true);
+}
+
+function gruposTexto(){
+  const grupos = [];
+  if (doc.grupoDocentes) grupos.push('docentes');
+  if (doc.grupoEstudiantes) grupos.push('estudiantes');
+  if (doc.grupoDirectivos) grupos.push('equipo directivo');
+  if (!grupos.length) return '[docentes / estudiantes / equipo directivo]';
+  if (grupos.length === 1) return grupos[0];
+  return grupos.slice(0,-1).join(', ') + ' y ' + grupos[grupos.length-1];
+}
+
+function buildCartas(){
+  const carrera = doc.carrera.trim() || '[nombre de la carrera]';
+  const mencion = doc.mencion.trim() || '[mención/especialidad]';
+  const integrantes = doc.integrantes.trim() || '[nombres y apellidos de los/as estudiantes]';
+  const establecimiento = doc.establecimiento.trim() || '[nombre completo de la institución]';
+  const carreraDestino = doc.carreraDestino.trim() || '[carrera a la que pertenece el/la director/a]';
+  const universidadDestino = doc.universidadDestino.trim() || '[universidad a la que pertenece esa carrera]';
+  const objetivo = doc.objetivo.trim() || '[objetivo general de la investigación]';
+  const docenteNombre = doc.docenteNombre.trim() || '[nombre y título del/la docente]';
+  const docenteCorreo = doc.docenteCorreo.trim() || '[correo del/la docente]';
+  const docenteTelefono = doc.docenteTelefono.trim();
+  const mes = doc.mes || '[mes]';
+  const dia = doc.dia.trim() || '[día]';
+
+  if (doc.tipo === 'cartaA' || doc.tipo === 'cartaC') {
+    const esCartaC = doc.tipo === 'cartaC';
+    const { generoTxt, srLinea } = tratamientoTexto(doc, esCartaC ? 'de Carrera' : undefined);
+    const bullets = [];
+    if (doc.entrevista) bullets.push(`- Entrevistar a ${doc.entrevistaQuienes.trim() || '[muestra: quiénes contestarán este instrumento]'}.`);
+    if (doc.encuesta) bullets.push(`- Aplicar una breve encuesta destinada a ${doc.encuestaQuienes.trim() || '[muestra: quiénes contestarán este instrumento]'}.`);
+    if (!bullets.length) bullets.push('- [Indique aquí a quién se aplicarán las entrevistas o encuestas].');
+    const contacto = `cuyo correo electrónico es ${docenteCorreo}${docenteTelefono ? ' y su número telefónico es ' + docenteTelefono : ''}`;
+    return {
+      paragraphs: [
+        { text: `Osorno, ${mes} de 2026`, align:'right' },
+        { text: '' },
+        { text: `${generoTxt}\n${srLinea}` },
+        esCartaC
+          ? { text: `Carrera de ${carreraDestino}\n${universidadDestino}\nPresente:` }
+          : { text: `Establecimiento educacional ${establecimiento}\nPresente:` },
+        { text: `Somos estudiantes de la carrera de ${carrera}, de la Universidad de Los Lagos, de la ciudad de Osorno. Nuestros nombres son ${integrantes}. Nos encontramos realizando un trabajo de investigación para la obtención del Grado de Licenciatura en Educación, a cargo del Departamento de Educación.` },
+        esCartaC
+          ? { text: `A través de esta carta, queremos solicitar su autorización para aplicar nuestro instrumento de recolección de datos a estudiantes de la carrera que usted dirige, en el marco de nuestra investigación, la que tiene como propósito principal "${objetivo}".` }
+          : { text: `A través de esta carta, queremos solicitar su autorización para poder llevar a cabo nuestra investigación en el establecimiento educacional que usted dirige, la que tiene como propósito principal "${objetivo}".` },
+        { text: `Para poder cumplir con este objetivo, nos enfocaremos en:\n${bullets.join('\n')}` },
+        { text: `La académica o académico que apoya este trabajo es ${docenteNombre}, ${contacto}, quien estará disponible para resolver las dudas y consultas que usted considere pertinentes.` },
+        { text: `Agradecemos desde ya su atención y quedamos atentas/os a su respuesta.` },
+        { text: '' },
+        { text: `${integrantes}\nEstudiantes Pedagogía en ${mencion}\nUniversidad de Los Lagos`, align:'center' },
+      ]
+    };
+  }
+
+  const { generoTxt, srLinea } = tratamientoTexto(doc);
+  return {
+    paragraphs: [
+      { text: `Osorno, ${dia} de ${mes} de 2026`, align:'right' },
+      { text: '' },
+      { text: `${generoTxt}, ${srLinea}` },
+      { text: `Establecimiento Educacional ${establecimiento}\nPresente.` },
+      { text: `Junto a un cordial saludo, me pongo en contacto con usted pues los estudiantes de la carrera de ${carrera} de la Universidad de Los Lagos, de la ciudad de Osorno, ${integrantes}, se encuentran desarrollando un trabajo de investigación para la obtención del Grado de Licenciatura en Educación.` },
+      { text: `Este trabajo tiene como propósito principal "${objetivo}".` },
+      { text: `Para poder cumplir con este objetivo, los estudiantes se han enfocado en una revisión teórica que les otorgue antecedentes y respaldos desde las investigaciones relacionadas a la temática, así como han considerado importante conocer la percepción de la misma por parte de ${gruposTexto()} del sistema escolar, por lo cual le solicito tenga a bien autorizar que los estudiantes apliquen instrumentos a los actores antes indicados. Los estudiantes, contando con su visto bueno, planificarán y organizarán este trabajo.` },
+      { text: `Por mi parte, quedo a disposición para resolver las dudas y consultas que usted considere pertinente realizar, y agradezco desde ya su disposición.` },
+      { text: `Atentamente\n\n${docenteNombre}\nAcadémica/o Departamento de Educación\n${docenteCorreo}${docenteTelefono ? '\nfono oficina ' + docenteTelefono : ''}\nUniversidad de Los Lagos`, align:'center' },
+    ]
+  };
+}
+function renderCartasPreview(){ renderPreview(buildCartas(), 'cartasPreviewBox'); }
+
+renderCartasDocTypeRow();
+renderCartasCampos();
+renderCartasPreview();
+bindCopyDownload(buildCartas, {copy:'cartasCopyBtn', word:'cartasDownloadWordBtn', announce:'cartasCopyAnnounce'}, () => doc.tipo === 'cartaA' ? 'Carta_A_autorizacion' : doc.tipo === 'cartaB' ? 'Carta_B_autorizacion' : 'Carta_C_autorizacion', { font: 'Times New Roman', logo: true, justify: true });
+</script>
+
+</body>
+</html>
