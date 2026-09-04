@@ -47,7 +47,7 @@
   .hoverLift{transition:transform .18s ease,box-shadow .18s ease}
   .hoverLift:hover{transform:translateY(-3px) scale(1.015);box-shadow:0 10px 20px rgba(0,0,0,.10)}
   .tpl-field{margin-bottom:14px}
-  .tpl-field label{display:block;font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+  .tpl-field label{display:block;line-height:1.3;min-height:2.6em;font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
   .tpl-field textarea{width:100%;min-height:70px;border-radius:8px;border:1.5px solid #d7dee5;padding:12px 14px;font-size:14px;line-height:1.55;color:#1a232b;resize:vertical}
   .tpl-field textarea:focus{outline:none;border-color:#0055B7}
   .tpl-field input[type=text]{width:100%;border-radius:8px;border:1.5px solid #d7dee5;padding:10px 14px;font-size:15px;font-weight:700;color:#0d1b2a}
@@ -250,7 +250,7 @@
       </div>
       <div id="correoCopyAnnounce" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
     </div>
-  </div>x
+  </div>
 </section>
 
 <section id="correo-errores" style="max-width:980px;margin:0 auto">
@@ -367,14 +367,13 @@
   <div style="max-width:980px;margin:0 auto">
     <p class="eyebrow" style="background:#dbeaf9;color:#0055B7">Fase 4 · Tu turno — arma y descarga tu carta</p>
     <h2 style="font-size:clamp(26px,3.2vw,36px);margin-bottom:10px;color:#0d1b2a">Completa los campos</h2>
-    <p style="font-size:15px;color:#55606b;margin-bottom:10px;max-width:760px">Elige qué carta necesitas y completa cada campo. Lo que falte por completar se ve resaltado en amarillo en la vista previa.</p>
+    <p style="font-size:15px;color:#55606b;margin-bottom:10px;max-width:760px">Elige a quién va dirigida tu carta y completa cada campo. Lo que falte por completar se ve resaltado en amarillo en la vista previa.</p>
     <p class="autosave-note" id="cartasAutosaveStatus" style="margin-bottom:28px">💾 Tu progreso se guarda automáticamente en este navegador. Se recomienda descargar tu trabajo periódicamente.</p>
 
     <div class="docTypeRow" id="cartasDocTypeRow"></div>
 
     <div class="card" style="margin-bottom:20px">
       <div id="cartasCamposComunes"></div>
-      <div id="cartasCamposExtra"></div>
     </div>
 
     <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792;margin-bottom:10px">Vista previa</p>
@@ -846,12 +845,17 @@ makeChecklist([
    ===================================================================== */
 const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
-function tratamientoTexto(d, cargo){
-  const base = d.generoDirector === 'director' ? 'Estimado Director' : 'Estimada Directora';
-  const generoTxt = cargo ? `${base} ${cargo}` : base;
+function tratamientoTexto(d, roleLabels){
+  const role = roleLabels || { m:'Director', f:'Directora' };
+  const base = d.generoDirector === 'director' ? role.m : role.f;
+  const generoTxt = (d.generoDirector === 'director' ? 'Estimado ' : 'Estimada ') + base;
   const srTxt = d.tratamiento === 'sr' ? 'Sr.' : 'Sra.';
-  const nombre = (d.nombreDirector||'').trim() || '[nombre y ambos apellidos del/la director/a]';
+  const nombre = (d.nombreDirector||'').trim() || '[nombre y ambos apellidos de quien recibe la carta]';
   return { generoTxt, srLinea: `${srTxt} ${nombre}` };
+}
+
+function esDocentesPlural(nombreRaw){
+  return (nombreRaw||'').split(',').map(s => s.trim()).filter(Boolean).length > 1;
 }
 
 function renderPreview(data, boxId){
@@ -999,8 +1003,9 @@ function renderCorreoCampos(){
         <input type="text" id="c_nombreDirector" placeholder="Ej: Marcela Ríos Alarcón" value="${esc(correo.nombreDirector)}">
       </div>
       <div class="tpl-field" style="grid-column:1/-1">
-        <label>Nombre y título del/la docente</label>
+        <label>Nombre y título del/la docente a cargo de la asignatura</label>
         <input type="text" id="c_docenteNombre" placeholder="Ej: Dra. Camila Reyes Muñoz" value="${esc(correo.docenteNombre)}">
+        <p class="field-hint">Si son más de un/a docente, sepáralos con una coma.</p>
       </div>
     </div>
     <hr style="border:none;border-top:1px solid #eef1f3;margin:18px 0">
@@ -1046,19 +1051,21 @@ function buildCorreo(){
   const integrantes = correo.integrantes.trim() || '[nombres y apellidos de los/as estudiantes]';
   const establecimiento = correo.establecimiento.trim() || '[nombre completo de la institución]';
   const tema = correo.tema.trim() || '[tema de la investigación]';
-  const docenteNombre = correo.docenteNombre.trim() || '[nombre y título del/la docente]';
+  const docenteNombreRaw = correo.docenteNombre.trim();
+  const docenteNombre = docenteNombreRaw || '[nombre y título del/la docente a cargo de la asignatura]';
+  const docenteRolTxt = esDocentesPlural(docenteNombreRaw) ? 'docentes a cargo de la asignatura' : 'docente a cargo de la asignatura';
   const { generoTxt, srLinea } = tratamientoTexto(correo);
 
   const saludo = correo.yaConversaron
     ? `Como conversamos ${correo.dondeCuando.trim() ? correo.dondeCuando.trim() : '[dónde o cuándo]'}, junto con saludar, quisiera formalizar por este medio nuestra solicitud.`
-    : `Junto con saludar cordialmente, le escribimos porque somos estudiantes de la carrera de ${carrera} de la Universidad de Los Lagos, sede Osorno. Nos encontramos realizando un trabajo de investigación para optar al Grado de Licenciatura en Educación, a cargo de ${docenteNombre}, académica/o del Departamento de Educación.`;
+    : `Junto con saludar cordialmente, le escribimos porque somos estudiantes de la carrera de ${carrera} de la Universidad de Los Lagos, sede Osorno. Nos encontramos realizando un trabajo de investigación para optar al Grado de Licenciatura en Educación, a cargo de ${docenteNombre}, ${docenteRolTxt} del Departamento de Educación.`;
 
   const solicitud = correo.quiereReunion
     ? `Nos gustaría saber si sería posible coordinar una breve reunión para conversar los detalles de nuestra investigación sobre ${tema}, a realizarse en el establecimiento ${establecimiento} que usted dirige.${correo.disponibilidad.trim() ? ' Nuestra disponibilidad es ' + correo.disponibilidad.trim() + '.' : ''} Adjuntamos una carta con el detalle completo de la investigación.`
     : `Nos gustaría solicitar su autorización para realizar nuestra investigación sobre ${tema} en el establecimiento ${establecimiento} que usted dirige. Adjuntamos una carta con el detalle completo de la investigación y lo que estaríamos solicitando.`;
 
   return {
-    asunto: 'Contacto estudiantes Universidad de Los Lagos — solicitud de autorización',
+    asunto: 'Solicitud de autorización para investigación',
     paragraphs: [
       { text: `${generoTxt}, ${srLinea}:` },
       { text: saludo },
@@ -1078,21 +1085,19 @@ bindCopyDownload(buildCorreo, {copy:'correoCopyBtn', word:'correoDownloadWordBtn
    GENERADOR — CARTAS
    ===================================================================== */
 const CARTAS_KEY = 'ulagos_carta_borrador_v1';
-const docTypesCartas = [
-  {id:'cartaA', label:'Carta A · la firman ustedes', hint:'Documento formal que redactan y firman los/as estudiantes.'},
-  {id:'cartaB', label:'Carta B · la firma la profesora', hint:'La completa y firma el/la docente.'},
-  {id:'cartaC', label:'Carta C · a director/a de otra carrera', hint:'Para solicitar autorización y aplicar tu instrumento a estudiantes de otra carrera.'},
+const destinatarioOptions = [
+  {id:'establecimiento', label:'Establecimiento educacional', hint:'Un colegio o liceo, dirigido a su director/a o jefe/a de UTP.'},
+  {id:'carrera', label:'Director/a Docente de una carrera', hint:'Para solicitar autorización y aplicar tu instrumento a estudiantes o docentes de una carrera.'},
 ];
 let doc = {
-  tipo:'cartaA',
+  destinatarioTipo:'establecimiento', cargoEstablecimiento:'director',
   carrera:'', mencion:'', integrantes:'', establecimiento:'',
   carreraDestino:'', universidadDestino:'',
   generoDirector:'directora', tratamiento:'sra', nombreDirector:'',
   docenteNombre:'', docenteCorreo:'', docenteTelefono:'',
-  objetivo:'', mes:'', dia:'',
+  objetivo:'', mes:'',
   entrevista:false, entrevistaQuienes:'',
   encuesta:false, encuestaQuienes:'',
-  grupoDocentes:false, grupoEstudiantes:false, grupoDirectivos:false,
 };
 function saveDocState(){
   try {
@@ -1115,15 +1120,15 @@ if (loadDocState()) {
   if (s) s.innerHTML = '💾 Recuperamos el borrador que tenías guardado en este navegador.';
 }
 function renderCartasDocTypeRow(){
-  document.getElementById('cartasDocTypeRow').innerHTML = docTypesCartas.map(dt => `
-    <button type="button" class="docTypeBtn${doc.tipo===dt.id?' active':''}" data-tipo="${dt.id}">
+  document.getElementById('cartasDocTypeRow').innerHTML = destinatarioOptions.map(dt => `
+    <button type="button" class="docTypeBtn${doc.destinatarioTipo===dt.id?' active':''}" data-tipo="${dt.id}">
       ${dt.label}
       <small>${dt.hint}</small>
     </button>
   `).join('');
   document.querySelectorAll('#cartasDocTypeRow .docTypeBtn').forEach(btn => {
     btn.addEventListener('click', () => {
-      doc.tipo = btn.dataset.tipo;
+      doc.destinatarioTipo = btn.dataset.tipo;
       saveDocState();
       renderCartasDocTypeRow();
       renderCartasCampos();
@@ -1132,9 +1137,15 @@ function renderCartasDocTypeRow(){
   });
 }
 
+function roleLabels(){
+  if (doc.destinatarioTipo === 'carrera') return { m:'Director de Carrera', f:'Directora de Carrera' };
+  if (doc.cargoEstablecimiento === 'utp') return { m:'Jefe de UTP', f:'Jefa de UTP' };
+  return { m:'Director', f:'Directora' };
+}
+
 function renderCartasCampos(){
-  const esCartaC = doc.tipo === 'cartaC';
-  const cargoLabel = esCartaC ? ' de Carrera' : '';
+  const esCarrera = doc.destinatarioTipo === 'carrera';
+  const role = roleLabels();
   const comunes = document.getElementById('cartasCamposComunes');
   comunes.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px">
@@ -1150,7 +1161,7 @@ function renderCartasCampos(){
         <label>Nombres y apellidos de los/as estudiantes</label>
         <input type="text" id="f_integrantes" placeholder="Ej: María Soto Vera, Juan Pérez Loncón" value="${esc(doc.integrantes)}">
       </div>
-      ${esCartaC ? `
+      ${esCarrera ? `
       <div class="tpl-field">
         <label>Carrera a la que pertenece el/la director/a</label>
         <input type="text" id="f_carreraDestino" placeholder="Ej: Pedagogía en Educación Básica" value="${esc(doc.carreraDestino)}">
@@ -1164,12 +1175,19 @@ function renderCartasCampos(){
         <label>Establecimiento educacional</label>
         <input type="text" id="f_establecimiento" placeholder="Ej: Liceo Bicentenario Rayen Vera" value="${esc(doc.establecimiento)}">
       </div>
+      <div class="tpl-field">
+        <label>Cargo de quien recibe la carta</label>
+        <select id="f_cargoEstablecimiento">
+          <option value="director" ${doc.cargoEstablecimiento==='director'?'selected':''}>Director/a</option>
+          <option value="utp" ${doc.cargoEstablecimiento==='utp'?'selected':''}>Jefe/a de UTP</option>
+        </select>
+      </div>
       `}
       <div class="tpl-field">
-        <label>Tratamiento del/la director/a</label>
+        <label>Tratamiento de quien recibe la carta</label>
         <select id="f_generoDirector">
-          <option value="directora" ${doc.generoDirector==='directora'?'selected':''}>Estimada Directora${cargoLabel}</option>
-          <option value="director" ${doc.generoDirector==='director'?'selected':''}>Estimado Director${cargoLabel}</option>
+          <option value="directora" ${doc.generoDirector==='directora'?'selected':''}>Estimada ${role.f}</option>
+          <option value="director" ${doc.generoDirector==='director'?'selected':''}>Estimado ${role.m}</option>
         </select>
       </div>
       <div class="tpl-field">
@@ -1180,7 +1198,7 @@ function renderCartasCampos(){
         </select>
       </div>
       <div class="tpl-field" style="grid-column:1/-1">
-        <label>Nombre y ambos apellidos del/la director/a</label>
+        <label>Nombre y ambos apellidos de quien recibe la carta</label>
         <input type="text" id="f_nombreDirector" placeholder="Ej: Marcela Ríos Alarcón" value="${esc(doc.nombreDirector)}">
       </div>
       <div class="tpl-field" style="grid-column:1/-1">
@@ -1190,11 +1208,12 @@ function renderCartasCampos(){
       </div>
     </div>
     <hr style="border:none;border-top:1px solid #eef1f3;margin:18px 0">
-    <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792;margin-bottom:10px">Datos del/la docente</p>
+    <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792;margin-bottom:10px">Datos del/la docente a cargo de la asignatura</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px">
       <div class="tpl-field" style="grid-column:1/-1">
-        <label>Nombre y título del/la docente</label>
+        <label>Nombre y título del/la docente a cargo de la asignatura</label>
         <input type="text" id="f_docenteNombre" placeholder="Ej: Dra. Camila Reyes Muñoz" value="${esc(doc.docenteNombre)}">
+        <p class="field-hint">Si son más de un/a docente, sepáralos con una coma.</p>
       </div>
       <div class="tpl-field">
         <label>Correo del/la docente</label>
@@ -1205,54 +1224,23 @@ function renderCartasCampos(){
         <input type="text" id="f_docenteTelefono" placeholder="Ej: 64-2-333256" value="${esc(doc.docenteTelefono)}">
       </div>
     </div>
+    <hr style="border:none;border-top:1px solid #eef1f3;margin:18px 0">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px">
+      <div class="tpl-field">
+        <label>Mes de envío</label>
+        <select id="f_mes">
+          <option value="">Selecciona un mes</option>
+          ${meses.map(m => `<option value="${m}" ${doc.mes===m?'selected':''}>${m}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+      <label class="check-item"><input type="checkbox" id="f_entrevista" ${doc.entrevista?'checked':''}><span>Aplicaremos entrevistas</span></label>
+      ${doc.entrevista ? `<div class="tpl-field" style="margin-left:31px"><label>¿A quién?</label><input type="text" id="f_entrevistaQuienes" placeholder="Ej: docentes de 5° básico" value="${esc(doc.entrevistaQuienes)}"></div>` : ''}
+      <label class="check-item"><input type="checkbox" id="f_encuesta" ${doc.encuesta?'checked':''}><span>Aplicaremos una encuesta</span></label>
+      ${doc.encuesta ? `<div class="tpl-field" style="margin-left:31px"><label>¿A quién?</label><input type="text" id="f_encuestaQuienes" placeholder="Ej: estudiantes de 3° medio" value="${esc(doc.encuestaQuienes)}"></div>` : ''}
+    </div>
   `;
-
-  const extra = document.getElementById('cartasCamposExtra');
-  if (doc.tipo === 'cartaA' || doc.tipo === 'cartaC') {
-    extra.innerHTML = `
-      <hr style="border:none;border-top:1px solid #eef1f3;margin:18px 0">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px">
-        <div class="tpl-field">
-          <label>Mes de envío</label>
-          <select id="f_mes">
-            <option value="">Selecciona un mes</option>
-            ${meses.map(m => `<option value="${m}" ${doc.mes===m?'selected':''}>${m}</option>`).join('')}
-          </select>
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
-        <label class="check-item"><input type="checkbox" id="f_entrevista" ${doc.entrevista?'checked':''}><span>Aplicaremos entrevistas</span></label>
-        ${doc.entrevista ? `<div class="tpl-field" style="margin-left:31px"><label>¿A quién?</label><input type="text" id="f_entrevistaQuienes" placeholder="Ej: docentes de 5° básico" value="${esc(doc.entrevistaQuienes)}"></div>` : ''}
-        <label class="check-item"><input type="checkbox" id="f_encuesta" ${doc.encuesta?'checked':''}><span>Aplicaremos una encuesta</span></label>
-        ${doc.encuesta ? `<div class="tpl-field" style="margin-left:31px"><label>¿A quién?</label><input type="text" id="f_encuestaQuienes" placeholder="Ej: estudiantes de 3° medio" value="${esc(doc.encuestaQuienes)}"></div>` : ''}
-      </div>
-    `;
-  } else if (doc.tipo === 'cartaB') {
-    extra.innerHTML = `
-      <hr style="border:none;border-top:1px solid #eef1f3;margin:18px 0">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px 18px;margin-bottom:14px">
-        <div class="tpl-field">
-          <label>Día</label>
-          <input type="text" id="f_dia" placeholder="Ej: 12" value="${esc(doc.dia)}">
-        </div>
-        <div class="tpl-field">
-          <label>Mes</label>
-          <select id="f_mes">
-            <option value="">Selecciona un mes</option>
-            ${meses.map(m => `<option value="${m}" ${doc.mes===m?'selected':''}>${m}</option>`).join('')}
-          </select>
-        </div>
-      </div>
-      <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792;margin-bottom:8px">¿A quiénes se aplicarán instrumentos?</p>
-      <div style="display:flex;flex-direction:column">
-        <label class="check-item"><input type="checkbox" id="f_grupoDocentes" ${doc.grupoDocentes?'checked':''}><span>Docentes</span></label>
-        <label class="check-item"><input type="checkbox" id="f_grupoEstudiantes" ${doc.grupoEstudiantes?'checked':''}><span>Estudiantes</span></label>
-        <label class="check-item"><input type="checkbox" id="f_grupoDirectivos" ${doc.grupoDirectivos?'checked':''}><span>Equipo directivo</span></label>
-      </div>
-    `;
-  } else {
-    extra.innerHTML = '';
-  }
 
   bindCartasCampos();
 }
@@ -1273,20 +1261,17 @@ function bindCartasCampos(){
   bind('f_generoDirector','generoDirector');
   bind('f_tratamiento','tratamiento'); bind('f_nombreDirector','nombreDirector');
   bind('f_docenteNombre','docenteNombre'); bind('f_docenteCorreo','docenteCorreo'); bind('f_docenteTelefono','docenteTelefono');
-  bind('f_objetivo','objetivo'); bind('f_mes','mes'); bind('f_dia','dia');
+  bind('f_objetivo','objetivo'); bind('f_mes','mes');
   bind('f_entrevista','entrevista',true); bind('f_entrevistaQuienes','entrevistaQuienes');
   bind('f_encuesta','encuesta',true); bind('f_encuestaQuienes','encuestaQuienes');
-  bind('f_grupoDocentes','grupoDocentes',true); bind('f_grupoEstudiantes','grupoEstudiantes',true); bind('f_grupoDirectivos','grupoDirectivos',true);
-}
 
-function gruposTexto(){
-  const grupos = [];
-  if (doc.grupoDocentes) grupos.push('docentes');
-  if (doc.grupoEstudiantes) grupos.push('estudiantes');
-  if (doc.grupoDirectivos) grupos.push('equipo directivo');
-  if (!grupos.length) return '[docentes / estudiantes / equipo directivo]';
-  if (grupos.length === 1) return grupos[0];
-  return grupos.slice(0,-1).join(', ') + ' y ' + grupos[grupos.length-1];
+  const cargoEl = document.getElementById('f_cargoEstablecimiento');
+  if (cargoEl) cargoEl.addEventListener('change', () => {
+    doc.cargoEstablecimiento = cargoEl.value;
+    saveDocState();
+    renderCartasCampos();
+    renderCartasPreview();
+  });
 }
 
 function buildCartas(){
@@ -1297,53 +1282,45 @@ function buildCartas(){
   const carreraDestino = doc.carreraDestino.trim() || '[carrera a la que pertenece el/la director/a]';
   const universidadDestino = doc.universidadDestino.trim() || '[universidad a la que pertenece esa carrera]';
   const objetivo = doc.objetivo.trim() || '[objetivo general de la investigación]';
-  const docenteNombre = doc.docenteNombre.trim() || '[nombre y título del/la docente]';
+  const docenteNombreRaw = doc.docenteNombre.trim();
+  const docenteNombre = docenteNombreRaw || '[nombre y título del/la docente a cargo de la asignatura]';
+  const docenteEsPlural = esDocentesPlural(docenteNombreRaw);
   const docenteCorreo = doc.docenteCorreo.trim() || '[correo del/la docente]';
   const docenteTelefono = doc.docenteTelefono.trim();
   const mes = doc.mes || '[mes]';
-  const dia = doc.dia.trim() || '[día]';
+  const esCarrera = doc.destinatarioTipo === 'carrera';
+  const esUtp = !esCarrera && doc.cargoEstablecimiento === 'utp';
+  const { generoTxt, srLinea } = tratamientoTexto(doc, roleLabels());
 
-  if (doc.tipo === 'cartaA' || doc.tipo === 'cartaC') {
-    const esCartaC = doc.tipo === 'cartaC';
-    const { generoTxt, srLinea } = tratamientoTexto(doc, esCartaC ? 'de Carrera' : undefined);
-    const bullets = [];
-    if (doc.entrevista) bullets.push(`- Entrevistar a ${doc.entrevistaQuienes.trim() || '[muestra: quiénes contestarán este instrumento]'}.`);
-    if (doc.encuesta) bullets.push(`- Aplicar una breve encuesta destinada a ${doc.encuestaQuienes.trim() || '[muestra: quiénes contestarán este instrumento]'}.`);
-    if (!bullets.length) bullets.push('- [Indique aquí a quién se aplicarán las entrevistas o encuestas].');
-    const contacto = `cuyo correo electrónico es ${docenteCorreo}${docenteTelefono ? ' y su número telefónico es ' + docenteTelefono : ''}`;
-    return {
-      paragraphs: [
-        { text: `Osorno, ${mes} de 2026`, align:'right' },
-        { text: '' },
-        { text: `${generoTxt}\n${srLinea}` },
-        esCartaC
-          ? { text: `Carrera de ${carreraDestino}\n${universidadDestino}\nPresente:` }
-          : { text: `Establecimiento educacional ${establecimiento}\nPresente:` },
-        { text: `Somos estudiantes de la carrera de ${carrera}, de la Universidad de Los Lagos, de la ciudad de Osorno. Nuestros nombres son ${integrantes}. Nos encontramos realizando un trabajo de investigación para la obtención del Grado de Licenciatura en Educación, a cargo del Departamento de Educación.` },
-        esCartaC
-          ? { text: `A través de esta carta, queremos solicitar su autorización para aplicar nuestro instrumento de recolección de datos a estudiantes de la carrera que usted dirige, en el marco de nuestra investigación, la que tiene como propósito principal "${objetivo}".` }
-          : { text: `A través de esta carta, queremos solicitar su autorización para poder llevar a cabo nuestra investigación en el establecimiento educacional que usted dirige, la que tiene como propósito principal "${objetivo}".` },
-        { text: `Para poder cumplir con este objetivo, nos enfocaremos en:\n${bullets.join('\n')}` },
-        { text: `La académica o académico que apoya este trabajo es ${docenteNombre}, ${contacto}, quien estará disponible para resolver las dudas y consultas que usted considere pertinentes.` },
-        { text: `Agradecemos desde ya su atención y quedamos atentas/os a su respuesta.` },
-        { text: '' },
-        { text: `${integrantes}\nEstudiantes Pedagogía en ${mencion}\nUniversidad de Los Lagos`, align:'center' },
-      ]
-    };
-  }
+  const bullets = [];
+  if (doc.entrevista) bullets.push(`- Entrevistar a ${doc.entrevistaQuienes.trim() || '[muestra: quiénes contestarán este instrumento]'}.`);
+  if (doc.encuesta) bullets.push(`- Aplicar una breve encuesta destinada a ${doc.encuestaQuienes.trim() || '[muestra: quiénes contestarán este instrumento]'}.`);
+  if (!bullets.length) bullets.push('- [Indique aquí a quién se aplicarán las entrevistas o encuestas].');
+  const docenteSujeto = docenteEsPlural ? 'Los/las docentes a cargo de la asignatura que apoyan este trabajo son' : 'El/la docente a cargo de la asignatura que apoya este trabajo es';
+  const docentePronombre = docenteEsPlural ? 'quienes estarán disponibles' : 'quien estará disponible';
+  const contacto = `cuyo correo electrónico es ${docenteCorreo}${docenteTelefono ? ' y su número telefónico es ' + docenteTelefono : ''}`;
 
-  const { generoTxt, srLinea } = tratamientoTexto(doc);
+  const encabezadoDestino = esCarrera
+    ? { text: `Carrera de ${carreraDestino}\n${universidadDestino}\nPresente:` }
+    : { text: `Establecimiento educacional ${establecimiento}\nPresente:` };
+
+  const solicitudTexto = esCarrera
+    ? `A través de esta carta, queremos solicitar su autorización para aplicar nuestro instrumento de recolección de datos a estudiantes de la carrera que usted dirige, en el marco de nuestra investigación, la que tiene como propósito principal "${objetivo}".`
+    : `A través de esta carta, queremos solicitar su autorización para poder llevar a cabo nuestra investigación en el establecimiento educacional ${esUtp ? 'en el que usted se desempeña' : 'que usted dirige'}, la que tiene como propósito principal "${objetivo}".`;
+
   return {
     paragraphs: [
-      { text: `Osorno, ${dia} de ${mes} de 2026`, align:'right' },
+      { text: `Osorno, ${mes} de 2026`, align:'right' },
       { text: '' },
-      { text: `${generoTxt}, ${srLinea}` },
-      { text: `Establecimiento Educacional ${establecimiento}\nPresente.` },
-      { text: `Junto a un cordial saludo, me pongo en contacto con usted pues los estudiantes de la carrera de ${carrera} de la Universidad de Los Lagos, de la ciudad de Osorno, ${integrantes}, se encuentran desarrollando un trabajo de investigación para la obtención del Grado de Licenciatura en Educación.` },
-      { text: `Este trabajo tiene como propósito principal "${objetivo}".` },
-      { text: `Para poder cumplir con este objetivo, los estudiantes se han enfocado en una revisión teórica que les otorgue antecedentes y respaldos desde las investigaciones relacionadas a la temática, así como han considerado importante conocer la percepción de la misma por parte de ${gruposTexto()} del sistema escolar, por lo cual le solicito tenga a bien autorizar que los estudiantes apliquen instrumentos a los actores antes indicados. Los estudiantes, contando con su visto bueno, planificarán y organizarán este trabajo.` },
-      { text: `Por mi parte, quedo a disposición para resolver las dudas y consultas que usted considere pertinente realizar, y agradezco desde ya su disposición.` },
-      { text: `Atentamente\n\n${docenteNombre}\nAcadémica/o Departamento de Educación\n${docenteCorreo}${docenteTelefono ? '\nfono oficina ' + docenteTelefono : ''}\nUniversidad de Los Lagos`, align:'center' },
+      { text: `${generoTxt}\n${srLinea}` },
+      encabezadoDestino,
+      { text: `Somos estudiantes de la carrera de ${carrera}, de la Universidad de Los Lagos, de la ciudad de Osorno. Nuestros nombres son ${integrantes}. Nos encontramos realizando un trabajo de investigación para la obtención del Grado de Licenciatura en Educación, a cargo del Departamento de Educación.` },
+      { text: solicitudTexto },
+      { text: `Para poder cumplir con este objetivo, nos enfocaremos en:\n${bullets.join('\n')}` },
+      { text: `${docenteSujeto} ${docenteNombre}, ${contacto}, ${docentePronombre} para resolver las dudas y consultas que usted considere pertinentes.` },
+      { text: `Agradecemos desde ya su atención y quedamos atentas/os a su respuesta.` },
+      { text: '' },
+      { text: `${integrantes}\nEstudiantes Pedagogía en ${mencion}\nUniversidad de Los Lagos`, align:'center' },
     ]
   };
 }
@@ -1352,7 +1329,7 @@ function renderCartasPreview(){ renderPreview(buildCartas(), 'cartasPreviewBox')
 renderCartasDocTypeRow();
 renderCartasCampos();
 renderCartasPreview();
-bindCopyDownload(buildCartas, {copy:'cartasCopyBtn', word:'cartasDownloadWordBtn', announce:'cartasCopyAnnounce'}, () => doc.tipo === 'cartaA' ? 'Carta_A_autorizacion' : doc.tipo === 'cartaB' ? 'Carta_B_autorizacion' : 'Carta_C_autorizacion', { font: 'Times New Roman', logo: true, justify: true });
+bindCopyDownload(buildCartas, {copy:'cartasCopyBtn', word:'cartasDownloadWordBtn', announce:'cartasCopyAnnounce'}, () => 'Carta_autorizacion_' + (doc.destinatarioTipo === 'carrera' ? 'carrera' : 'establecimiento'), { font: 'Times New Roman', logo: true, justify: true });
 </script>
 
 </body>
