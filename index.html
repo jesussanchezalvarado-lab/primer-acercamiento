@@ -1154,8 +1154,8 @@ function renderCartasCampos(){
         <input type="text" id="f_carrera" placeholder="Ej: Pedagogía en Educación Media en Lengua Castellana y Comunicaciones" value="${esc(doc.carrera)}">
       </div>
       <div class="tpl-field">
-        <label>Mención / especialidad</label>
-        <input type="text" id="f_mencion" placeholder="Ej: mención Lenguaje" value="${esc(doc.mencion)}">
+        <label>Mención / especialidad (opcional)</label>
+        <input type="text" id="f_mencion" placeholder="Ej: Lengua Castellana y Comunicaciones" value="${esc(doc.mencion)}">
       </div>
       <div class="tpl-field" style="grid-column:1/-1">
         <label>Nombres y apellidos de los/as estudiantes</label>
@@ -1276,7 +1276,7 @@ function bindCartasCampos(){
 
 function buildCartas(){
   const carrera = doc.carrera.trim() || '[nombre de la carrera]';
-  const mencion = doc.mencion.trim() || '[mención/especialidad]';
+  const mencion = doc.mencion.trim();
   const integrantes = doc.integrantes.trim() || '[nombres y apellidos de los/as estudiantes]';
   const establecimiento = doc.establecimiento.trim() || '[nombre completo de la institución]';
   const carreraDestino = doc.carreraDestino.trim() || '[carrera a la que pertenece el/la director/a]';
@@ -1320,7 +1320,7 @@ function buildCartas(){
       { text: `${docenteSujeto} ${docenteNombre}, ${contacto}, ${docentePronombre} para resolver las dudas y consultas que usted considere pertinentes.` },
       { text: `Agradecemos desde ya su atención y quedamos atentas/os a su respuesta.` },
       { text: '' },
-      { text: `${integrantes}\nEstudiantes Pedagogía en ${mencion}\nUniversidad de Los Lagos`, align:'center' },
+      { text: `${integrantes}\nEstudiantes ${carrera}${doc.mencion.trim() ? `, mención ${mencion}` : ''}\nUniversidad de Los Lagos`, align:'center' },
     ]
   };
 }
