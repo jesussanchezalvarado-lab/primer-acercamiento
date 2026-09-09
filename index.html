@@ -867,6 +867,25 @@ function joinNombresConY(nombreRaw){
   return nombres.slice(0,-1).join(', ') + ' y ' + nombres[nombres.length-1];
 }
 
+function contarNombres(raw){
+  return (raw||'').split(',').map(s => s.trim()).filter(Boolean).length;
+}
+
+function textoAtentos(genero, esPlural){
+  if (genero === 'f') return esPlural ? 'atentas' : 'atenta';
+  if (genero === 'm') return esPlural ? 'atentos' : 'atento';
+  return esPlural ? 'atentos y atentas' : 'atento/a';
+}
+
+function docenteSujetoTexto(genero, esPlural){
+  if (!esPlural) {
+    const articulo = genero === 'f' ? 'La' : 'El';
+    return `${articulo} docente a cargo de la asignatura que apoya este trabajo es`;
+  }
+  const articulo = genero === 'f' ? 'Las' : genero === 'm' ? 'Los' : 'Los y las';
+  return `${articulo} docentes a cargo de la asignatura que apoyan este trabajo son`;
+}
+
 const destinatarioOptions = [
   {id:'establecimiento', label:'Establecimiento educacional', hint:'Un colegio o liceo, dirigido a su director/a o jefe/a de UTP.'},
   {id:'carrera', label:'Director/a Docente de una carrera', hint:'Para solicitar autorización y aplicar tu instrumento a estudiantes o docentes de una carrera.'},
@@ -970,7 +989,7 @@ let correo = {
   carrera:'', mencion:'', integrantes:'', establecimiento:'',
   carreraDestino:'', universidadDestino:'',
   generoDirector:'directora', tratamiento:'sra', nombreDirector:'',
-  docenteNombre:'',
+  docenteNombre:'', estudiantesGenero:'mixto',
   yaConversaron:false, dondeCuando:'',
   tema:'', quiereReunion:true, disponibilidad:'',
 };
@@ -1021,6 +1040,14 @@ function renderCorreoCampos(){
       <div class="tpl-field" style="grid-column:1/-1">
         <label>Nombres y apellidos de los/as estudiantes</label>
         <input type="text" id="c_integrantes" placeholder="Ej: María Soto Vera, Juan Pérez Loncón" value="${esc(correo.integrantes)}">
+      </div>
+      <div class="tpl-field">
+        <label>Género de quienes firman</label>
+        <select id="c_estudiantesGenero">
+          <option value="mixto" ${correo.estudiantesGenero==='mixto'?'selected':''}>Mixto (ellos y ellas)</option>
+          <option value="f" ${correo.estudiantesGenero==='f'?'selected':''}>Todas mujeres</option>
+          <option value="m" ${correo.estudiantesGenero==='m'?'selected':''}>Todos hombres</option>
+        </select>
       </div>
       ${esCarrera ? `
       <div class="tpl-field">
@@ -1094,6 +1121,7 @@ function renderCorreoCampos(){
     });
   };
   bind('c_carrera','carrera','input'); bind('c_mencion','mencion','input'); bind('c_integrantes','integrantes','input');
+  bind('c_estudiantesGenero','estudiantesGenero','change');
   bind('c_establecimiento','establecimiento','input'); bind('c_carreraDestino','carreraDestino','input'); bind('c_universidadDestino','universidadDestino','input');
   bind('c_generoDirector','generoDirector','change');
   bind('c_tratamiento','tratamiento','change'); bind('c_nombreDirector','nombreDirector','input');
@@ -1124,6 +1152,8 @@ function buildCorreo(){
   const docenteNombreRaw = correo.docenteNombre.trim();
   const docenteNombre = docenteNombreRaw ? joinNombresConY(docenteNombreRaw) : '[nombre del/la docente a cargo de la asignatura]';
   const docenteRolTxt = esDocentesPlural(docenteNombreRaw) ? 'docentes a cargo de la asignatura' : 'docente a cargo de la asignatura';
+  const estudiantesEsPlural = contarNombres(correo.integrantes) !== 1;
+  const atentosTxt = textoAtentos(correo.estudiantesGenero, estudiantesEsPlural);
   const { generoTxt, srLinea } = tratamientoTexto(correo, roleLabels(correo));
   const esCarrera = correo.destinatarioTipo === 'carrera';
   const esUtp = !esCarrera && correo.cargoEstablecimiento === 'utp';
@@ -1147,7 +1177,7 @@ function buildCorreo(){
       { text: `${generoTxt}, ${srLinea}:` },
       { text: saludo },
       { text: solicitud },
-      { text: `Quedamos atentos/as a su respuesta y agradecemos desde ya su tiempo.` },
+      { text: `Quedamos ${atentosTxt} a su respuesta y agradecemos desde ya su tiempo.` },
       { text: `Saludos cordiales,\n${integrantes}\nEstudiantes Pedagogía en ${mencion}\nUniversidad de Los Lagos` },
     ]
   };
@@ -1168,7 +1198,8 @@ let doc = {
   carrera:'', mencion:'', integrantes:'', establecimiento:'',
   carreraDestino:'', universidadDestino:'',
   generoDirector:'directora', tratamiento:'sra', nombreDirector:'',
-  docenteNombre:'', docenteCorreo:'', docenteTelefono:'',
+  docenteNombre:'', docenteCorreo:'', docenteTelefono:'', docenteGenero:'mixto',
+  estudiantesGenero:'mixto',
   objetivo:'', mes:'',
   entrevista:false, entrevistaQuienes:'',
   encuesta:false, encuestaQuienes:'',
@@ -1226,6 +1257,14 @@ function renderCartasCampos(){
         <label>Nombres y apellidos de los/as estudiantes</label>
         <input type="text" id="f_integrantes" placeholder="Ej: María Soto Vera, Juan Pérez Loncón" value="${esc(doc.integrantes)}">
       </div>
+      <div class="tpl-field">
+        <label>Género de quienes firman</label>
+        <select id="f_estudiantesGenero">
+          <option value="mixto" ${doc.estudiantesGenero==='mixto'?'selected':''}>Mixto (ellos y ellas)</option>
+          <option value="f" ${doc.estudiantesGenero==='f'?'selected':''}>Todas mujeres</option>
+          <option value="m" ${doc.estudiantesGenero==='m'?'selected':''}>Todos hombres</option>
+        </select>
+      </div>
       ${esCarrera ? `
       <div class="tpl-field">
         <label>Carrera a la que pertenece el/la director/a</label>
@@ -1281,6 +1320,14 @@ function renderCartasCampos(){
         <p class="field-hint">Si son más de un/a docente, sepáralos con una coma.</p>
       </div>
       <div class="tpl-field">
+        <label>Género de los/as docentes</label>
+        <select id="f_docenteGenero">
+          <option value="mixto" ${doc.docenteGenero==='mixto'?'selected':''}>Mixto (él y ella)</option>
+          <option value="f" ${doc.docenteGenero==='f'?'selected':''}>Femenino</option>
+          <option value="m" ${doc.docenteGenero==='m'?'selected':''}>Masculino</option>
+        </select>
+      </div>
+      <div class="tpl-field">
         <label>Correo del/la docente</label>
         <input type="text" id="f_docenteCorreo" placeholder="Ej: camila.reyes@ulagos.cl" value="${esc(doc.docenteCorreo)}">
       </div>
@@ -1322,10 +1369,11 @@ function bindCartasCampos(){
     });
   };
   bind('f_carrera','carrera'); bind('f_mencion','mencion'); bind('f_integrantes','integrantes');
+  bind('f_estudiantesGenero','estudiantesGenero');
   bind('f_establecimiento','establecimiento'); bind('f_carreraDestino','carreraDestino'); bind('f_universidadDestino','universidadDestino');
   bind('f_generoDirector','generoDirector');
   bind('f_tratamiento','tratamiento'); bind('f_nombreDirector','nombreDirector');
-  bind('f_docenteNombre','docenteNombre'); bind('f_docenteCorreo','docenteCorreo'); bind('f_docenteTelefono','docenteTelefono');
+  bind('f_docenteNombre','docenteNombre'); bind('f_docenteGenero','docenteGenero'); bind('f_docenteCorreo','docenteCorreo'); bind('f_docenteTelefono','docenteTelefono');
   bind('f_objetivo','objetivo'); bind('f_mes','mes');
   bind('f_entrevista','entrevista',true); bind('f_entrevistaQuienes','entrevistaQuienes');
   bind('f_encuesta','encuesta',true); bind('f_encuestaQuienes','encuestaQuienes');
@@ -1361,8 +1409,10 @@ function buildCartas(){
   if (doc.entrevista) bullets.push(`- Entrevistar a ${doc.entrevistaQuienes.trim() || '[muestra: quiénes contestarán este instrumento]'}.`);
   if (doc.encuesta) bullets.push(`- Aplicar una breve encuesta destinada a ${doc.encuestaQuienes.trim() || '[muestra: quiénes contestarán este instrumento]'}.`);
   if (!bullets.length) bullets.push('- [Indique aquí a quién se aplicarán las entrevistas o encuestas].');
-  const docenteSujeto = docenteEsPlural ? 'Los/las docentes a cargo de la asignatura que apoyan este trabajo son' : 'El/la docente a cargo de la asignatura que apoya este trabajo es';
+  const docenteSujeto = docenteSujetoTexto(doc.docenteGenero, docenteEsPlural);
   const docentePronombre = docenteEsPlural ? 'quienes estarán disponibles' : 'quien estará disponible';
+  const estudiantesEsPlural = contarNombres(doc.integrantes) !== 1;
+  const atentosTxt = textoAtentos(doc.estudiantesGenero, estudiantesEsPlural);
   const contacto = `cuyo correo electrónico es ${docenteCorreo}${docenteTelefono ? ' y su número telefónico es ' + docenteTelefono : ''}`;
 
   const encabezadoDestino = esCarrera
@@ -1383,7 +1433,7 @@ function buildCartas(){
       { text: solicitudTexto },
       { text: `Para poder cumplir con este objetivo, nos enfocaremos en:\n${bullets.join('\n')}` },
       { text: `${docenteSujeto} ${docenteNombre}, ${contacto}, ${docentePronombre} para resolver las dudas y consultas que usted considere pertinentes.` },
-      { text: `Agradecemos desde ya su atención y quedamos atentas/os a su respuesta.` },
+      { text: `Agradecemos desde ya su atención y quedamos ${atentosTxt} a su respuesta.` },
       { text: '' },
       { text: `${integrantes}\nEstudiantes ${carrera}${doc.mencion.trim() ? `, mención ${mencion}` : ''}\nUniversidad de Los Lagos`, align:'center' },
     ]
