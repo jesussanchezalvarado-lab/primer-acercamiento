@@ -601,7 +601,7 @@ makeHunt([
   {text:'A través de esta carta, queremos solicitar su autorización para llevar a cabo nuestra investigación, la que tiene como propósito principal "conocer la percepción docente sobre el uso de TIC en el aula".', isError:false, br:true},
   {text:'Para poder cumplir con este objetivo, nos enfocaremos en (A CONTINUACIÓN, DEJAR LO QUE CORRESPONDA).', isError:true, br:true,
     expl:'quedó la instrucción de la plantilla sin borrar, justo donde debería ir el detalle real (por ejemplo, a quién van a entrevistar o encuestar). Ese texto nunca debe llegar a la versión final.'},
-  {text:'La académica que apoya este trabajo es la Dra. Camila Reyes Muñoz, cuyo correo electrónico es camila.reyes@ulagos.cl.', isError:false, br:false},
+  {text:'La académica que apoya este trabajo es Camila Reyes Muñoz, cuyo correo electrónico es camila.reyes@ulagos.cl.', isError:false, br:false},
 ], 'cartasHuntWrap', 'cartasHuntCount', 'cartasHuntAnnounce', 'cartasHuntReveal');
 
 /* =====================================================================
@@ -712,7 +712,7 @@ makeReorder([
   {n:'A', color:'#0055B7', titulo:'Encabezado', texto:'"Estimada Directora, Sra. Marcela Ríos Alarcón. Establecimiento educacional Liceo Bicentenario Rayen Vera. Presente:"'},
   {n:'B', color:'#3FAE29', titulo:'Presentación', texto:'"Somos estudiantes de la carrera de Pedagogía en Educación Media en Inglés, de la Universidad de Los Lagos. Nos encontramos realizando un trabajo de investigación para la obtención del Grado de Licenciatura en Educación."'},
   {n:'C', color:'#9F26B4', titulo:'Objetivo y solicitud', texto:'"Queremos solicitar su autorización para llevar a cabo nuestra investigación, cuyo propósito principal es conocer la percepción docente sobre el uso de retroalimentación oral en clases de inglés."'},
-  {n:'D', color:'#1C6AA0', titulo:'Cierre', texto:'"La académica que apoya este trabajo es la Dra. Camila Reyes Muñoz. Agradecemos desde ya su atención y quedamos atentas/os a su respuesta."'},
+  {n:'D', color:'#1C6AA0', titulo:'Cierre', texto:'"La académica que apoya este trabajo es Camila Reyes Muñoz. Agradecemos desde ya su atención y quedamos atentas/os a su respuesta."'},
 ], 'cartasOrderWrap', 'cartasOrderReset', 'cartasOrderFeedback');
 
 /* =====================================================================
@@ -764,7 +764,7 @@ renderEjemploCompleto('cartasExB', [
   {label:'A · Encabezado', color:'#0055B7', texto:'"Estimada Directora, Sra. Marcela Ríos Alarcón. Establecimiento educacional Liceo Bicentenario Rayen Vera. Presente:"'},
   {label:'B · Presentación', color:'#3FAE29', texto:'"Somos estudiantes de la carrera de Pedagogía en Educación Media en Inglés, de la Universidad de Los Lagos, de la ciudad de Osorno. Nos encontramos realizando un trabajo de investigación para la obtención del Grado de Licenciatura en Educación, a cargo del Departamento de Educación."'},
   {label:'C · Objetivo y solicitud', color:'#9F26B4', texto:'"Queremos solicitar su autorización para llevar a cabo nuestra investigación, cuyo propósito principal es conocer la percepción docente sobre el uso de retroalimentación oral en clases de inglés. Para ello, nos enfocaremos en entrevistar a docentes del área de inglés de segundo ciclo."'},
-  {label:'D · Cierre', color:'#1C6AA0', texto:'"La académica que apoya este trabajo es la Dra. Camila Reyes Muñoz, cuyo correo electrónico es camila.reyes@ulagos.cl. Agradecemos desde ya su atención y quedamos atentas/os a su respuesta."'},
+  {label:'D · Cierre', color:'#1C6AA0', texto:'"La académica que apoya este trabajo es Camila Reyes Muñoz, cuyo correo electrónico es camila.reyes@ulagos.cl. Agradecemos desde ya su atención y quedamos atentas/os a su respuesta."'},
 ]);
 
 /* =====================================================================
@@ -1063,8 +1063,8 @@ function renderCorreoCampos(){
         <input type="text" id="c_nombreDirector" placeholder="Ej: Marcela Ríos Alarcón" value="${esc(correo.nombreDirector)}">
       </div>
       <div class="tpl-field" style="grid-column:1/-1">
-        <label>Nombre y título del/la docente a cargo de la asignatura</label>
-        <input type="text" id="c_docenteNombre" placeholder="Ej: Dra. Camila Reyes Muñoz" value="${esc(correo.docenteNombre)}">
+        <label>Nombre de los docentes a cargo de la asignatura</label>
+        <input type="text" id="c_docenteNombre" placeholder="Ej: Camila Reyes Muñoz" value="${esc(correo.docenteNombre)}">
         <p class="field-hint">Si son más de un/a docente, sepáralos con una coma.</p>
       </div>
     </div>
@@ -1122,7 +1122,7 @@ function buildCorreo(){
   const carreraDestino = correo.carreraDestino.trim() || '[carrera a la que pertenece el/la director/a]';
   const tema = correo.tema.trim() || '[tema de la investigación]';
   const docenteNombreRaw = correo.docenteNombre.trim();
-  const docenteNombre = docenteNombreRaw ? joinNombresConY(docenteNombreRaw) : '[nombre y título del/la docente a cargo de la asignatura]';
+  const docenteNombre = docenteNombreRaw ? joinNombresConY(docenteNombreRaw) : '[nombre del/la docente a cargo de la asignatura]';
   const docenteRolTxt = esDocentesPlural(docenteNombreRaw) ? 'docentes a cargo de la asignatura' : 'docente a cargo de la asignatura';
   const { generoTxt, srLinea } = tratamientoTexto(correo, roleLabels(correo));
   const esCarrera = correo.destinatarioTipo === 'carrera';
@@ -1276,8 +1276,8 @@ function renderCartasCampos(){
     <p style="font:700 12px 'Open Sans',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:#7b8792;margin-bottom:10px">Datos del/la docente a cargo de la asignatura</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px">
       <div class="tpl-field" style="grid-column:1/-1">
-        <label>Nombre y título del/la docente a cargo de la asignatura</label>
-        <input type="text" id="f_docenteNombre" placeholder="Ej: Dra. Camila Reyes Muñoz" value="${esc(doc.docenteNombre)}">
+        <label>Nombre de los docentes a cargo de la asignatura</label>
+        <input type="text" id="f_docenteNombre" placeholder="Ej: Camila Reyes Muñoz" value="${esc(doc.docenteNombre)}">
         <p class="field-hint">Si son más de un/a docente, sepáralos con una coma.</p>
       </div>
       <div class="tpl-field">
@@ -1348,7 +1348,7 @@ function buildCartas(){
   const universidadDestino = doc.universidadDestino.trim() || '[universidad a la que pertenece esa carrera]';
   const objetivo = doc.objetivo.trim() || '[objetivo general de la investigación]';
   const docenteNombreRaw = doc.docenteNombre.trim();
-  const docenteNombre = docenteNombreRaw ? joinNombresConY(docenteNombreRaw) : '[nombre y título del/la docente a cargo de la asignatura]';
+  const docenteNombre = docenteNombreRaw ? joinNombresConY(docenteNombreRaw) : '[nombre del/la docente a cargo de la asignatura]';
   const docenteEsPlural = esDocentesPlural(docenteNombreRaw);
   const docenteCorreo = doc.docenteCorreo.trim() || '[correo del/la docente]';
   const docenteTelefono = doc.docenteTelefono.trim();
