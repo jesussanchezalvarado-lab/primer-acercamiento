@@ -1163,21 +1163,26 @@ function buildCorreo(){
     ? `Como conversamos ${correo.dondeCuando.trim() ? correo.dondeCuando.trim() : '[dónde o cuándo]'}, junto con saludar, quisiera formalizar por este medio nuestra solicitud.`
     : `Junto con saludar cordialmente, le escribimos porque somos estudiantes de la carrera de ${carrera} de la Universidad de Los Lagos, sede Osorno. Nos encontramos realizando un trabajo de investigación para optar al Grado de Licenciatura en Educación, a cargo de ${docenteNombre}, ${docenteRolTxt} del Departamento de Educación.`;
 
-  const solicitud = esCarrera
+  const solicitudParrafo1 = `Nos gustaría solicitar su autorización para realizar nuestra investigación sobre ${tema}, considerando para ello la participación de ${esCarrera ? 'estudiantes y docentes de distintas carreras de pedagogía' : 'distintos contextos educativos de la comuna'}.`;
+
+  const solicitudParrafo2 = esCarrera
     ? (correo.quiereReunion
-        ? `Nos gustaría saber si sería posible coordinar una breve reunión para conversar los detalles de nuestra investigación sobre ${tema}, y así poder aplicar nuestro instrumento a estudiantes de la carrera de ${carreraDestino} que usted tiene a cargo.${disponibilidadTxt} Adjuntamos una carta con el detalle completo de la investigación.`
-        : `Nos gustaría solicitar su autorización para aplicar nuestro instrumento de recolección de datos a estudiantes de la carrera de ${carreraDestino} que usted tiene a cargo, en el marco de nuestra investigación sobre ${tema}. Adjuntamos una carta con el detalle completo de la investigación y lo que estaríamos solicitando.`)
+        ? `En este marco, nos gustaría saber si sería posible coordinar una breve reunión para conversar sobre la posibilidad de aplicar nuestro instrumento de recolección de datos a estudiantes de la carrera de ${carreraDestino}, que usted tiene a cargo.${disponibilidadTxt} Adjuntamos una carta en la que se detallan los objetivos de la investigación, el procedimiento y la colaboración que estaríamos solicitando a la carrera.`
+        : `En este marco, nos gustaría consultar la posibilidad de aplicar nuestro instrumento de recolección de datos a estudiantes de la carrera de ${carreraDestino}, que usted tiene a cargo. Adjuntamos una carta en la que se detallan los objetivos de la investigación, el procedimiento y la colaboración que estaríamos solicitando a la carrera.`)
     : (correo.quiereReunion
-        ? `Nos gustaría saber si sería posible coordinar una breve reunión para conversar los detalles de nuestra investigación sobre ${tema}, a realizarse en el establecimiento ${establecimiento} ${esUtp ? 'en el que usted se desempeña' : 'que usted dirige'}.${disponibilidadTxt} Adjuntamos una carta con el detalle completo de la investigación.`
-        : `Nos gustaría solicitar su autorización para realizar nuestra investigación sobre ${tema} en el establecimiento ${establecimiento} ${esUtp ? 'en el que usted se desempeña' : 'que usted dirige'}. Adjuntamos una carta con el detalle completo de la investigación y lo que estaríamos solicitando.`);
+        ? `En este marco, nos gustaría saber si sería posible coordinar una breve reunión para conversar sobre la posibilidad de desarrollar parte de nuestra investigación en el ${establecimiento}, establecimiento ${esUtp ? 'en el que usted se desempeña' : 'que usted dirige'}.${disponibilidadTxt} Adjuntamos una carta en la que se detallan los objetivos de la investigación, el procedimiento y la colaboración que estaríamos solicitando al establecimiento.`
+        : `En este marco, nos gustaría consultar la posibilidad de desarrollar parte de nuestra investigación en el ${establecimiento}, establecimiento ${esUtp ? 'en el que usted se desempeña' : 'que usted dirige'}. Adjuntamos una carta en la que se detallan los objetivos de la investigación, el procedimiento y la colaboración que estaríamos solicitando al establecimiento.`);
+
+  const cierre = `Agradecemos desde ya su disposición y el tiempo destinado a considerar nuestra solicitud, y quedamos ${atentosTxt} a su respuesta.`;
 
   return {
     asunto: 'Solicitud de autorización para investigación',
     paragraphs: [
       { text: `${generoTxt}, ${srLinea}:` },
       { text: saludo },
-      { text: solicitud },
-      { text: `Quedamos ${atentosTxt} a su respuesta y agradecemos desde ya su tiempo.` },
+      { text: solicitudParrafo1 },
+      { text: solicitudParrafo2 },
+      { text: cierre },
       { text: `Saludos cordiales,\n${integrantes}\nEstudiantes Pedagogía en ${mencion}\nUniversidad de Los Lagos` },
     ]
   };
